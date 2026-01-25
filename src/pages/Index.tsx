@@ -1,11 +1,78 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { BioLink, SiteSettings, defaultSettings, defaultLinks } from "@/types";
+import { Button3D } from "@/components/Button3D";
+import { Settings } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Index = () => {
+  const [settings] = useLocalStorage<SiteSettings>("biolink_settings", defaultSettings);
+  const [links] = useLocalStorage<BioLink[]>("biolink_links", defaultLinks);
+
+  const enabledLinks = links.filter(link => link.enabled).sort((a, b) => a.order - b.order);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div 
+      className="min-h-screen flex flex-col items-center px-4 py-12 relative"
+      style={{ background: settings.backgroundGradient }}
+    >
+      {/* Admin Link */}
+      <Link 
+        to="/admin" 
+        className="absolute top-4 right-4 p-2 rounded-full bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-colors"
+        aria-label="Painel Admin"
+      >
+        <Settings className="w-5 h-5 text-muted-foreground" />
+      </Link>
+
+      {/* Content Container */}
+      <div className="w-full max-w-md flex flex-col items-center">
+        {/* Logo */}
+        <div className="animate-float-in mb-6">
+          {settings.logo ? (
+            <img 
+              src={settings.logo} 
+              alt={settings.brandName}
+              className="w-28 h-28 rounded-full object-cover border-4 border-card/50 shadow-lg"
+            />
+          ) : (
+            <div className="w-28 h-28 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg glow-primary">
+              <span className="text-4xl font-bold text-primary-foreground">
+                {settings.brandName.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Brand Name */}
+        <h1 className="text-3xl font-bold text-foreground mb-2 animate-float-in-delay-1 text-center">
+          {settings.brandName}
+        </h1>
+
+        {/* Description */}
+        <p className="text-muted-foreground text-center mb-10 animate-float-in-delay-2 max-w-sm">
+          {settings.description}
+        </p>
+
+        {/* Links */}
+        <div className="w-full space-y-4">
+          {enabledLinks.map((link, index) => (
+            <Button3D
+              key={link.id}
+              link={link}
+              buttonColor={settings.buttonColor}
+              textColor={settings.buttonTextColor}
+              shadowIntensity={settings.shadowIntensity}
+              index={index}
+            />
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div className="mt-16 text-center animate-float-in-delay-4">
+          <p className="text-sm text-muted-foreground/60">
+            Feito com ❤️ usando Bio Link
+          </p>
+        </div>
       </div>
     </div>
   );
