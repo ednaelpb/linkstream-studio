@@ -1,8 +1,6 @@
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { BioLink, SiteSettings, defaultSettings, defaultLinks } from "@/types";
 import { Button3D } from "@/components/Button3D";
-import { Settings } from "lucide-react";
-import { Link } from "react-router-dom";
 
 const Index = () => {
   const [settings] = useLocalStorage<SiteSettings>("biolink_settings", defaultSettings);
@@ -15,14 +13,6 @@ const Index = () => {
       className="min-h-screen flex flex-col items-center px-4 py-12 relative"
       style={{ background: settings.backgroundGradient }}
     >
-      {/* Admin Link */}
-      <Link 
-        to="/admin" 
-        className="absolute top-4 right-4 p-2 rounded-full bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-colors"
-        aria-label="Painel Admin"
-      >
-        <Settings className="w-5 h-5 text-muted-foreground" />
-      </Link>
 
       {/* Content Container */}
       <div className="w-full max-w-md flex flex-col items-center">
