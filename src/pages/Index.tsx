@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { BioLink, SiteSettings, defaultSettings, defaultLinks } from "@/types";
 import { Button3D } from "@/components/Button3D";
@@ -5,8 +6,13 @@ import { Button3D } from "@/components/Button3D";
 const Index = () => {
   const [settings] = useLocalStorage<SiteSettings>("biolink_settings", defaultSettings);
   const [links] = useLocalStorage<BioLink[]>("biolink_links", defaultLinks);
+  const [clickCounts, setClickCounts] = useLocalStorage<Record<string, number>>("biolink_clicks", {});
 
   const enabledLinks = links.filter(link => link.enabled).sort((a, b) => a.order - b.order);
+
+  const handleLinkClick = useCallback((id: string) => {
+    setClickCounts(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
+  }, [setClickCounts]);
 
   return (
     <div 
@@ -46,14 +52,15 @@ const Index = () => {
         {/* Links */}
         <div className="w-full space-y-4">
           {enabledLinks.map((link, index) => (
-            <Button3D
-              key={link.id}
-              link={link}
-              buttonColor={settings.buttonColor}
-              textColor={settings.buttonTextColor}
-              shadowIntensity={settings.shadowIntensity}
-              index={index}
-            />
+              <Button3D
+                key={link.id}
+                link={link}
+                buttonColor={settings.buttonColor}
+                textColor={settings.buttonTextColor}
+                shadowIntensity={settings.shadowIntensity}
+                index={index}
+                onClick={handleLinkClick}
+              />
           ))}
         </div>
 
