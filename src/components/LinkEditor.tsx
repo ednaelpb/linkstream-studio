@@ -4,10 +4,13 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GripVertical, Trash2, ExternalLink, MessageCircle, Instagram, Youtube, Link, Music, Mail, Phone, Globe, ShoppingBag, Heart, Star, MousePointerClick, RotateCcw, Video, Music2 } from "lucide-react";
+import { MediaPreview } from "@/components/MediaPreview";
+import { FileUpload } from "@/components/FileUpload";
 
 interface LinkEditorProps {
   link: BioLink;
   clicks: number;
+  userId: string;
   onUpdate: (id: string, updates: Partial<BioLink>) => void;
   onDelete: (id: string) => void;
   onResetClicks: (id: string) => void;
@@ -32,7 +35,7 @@ const iconOptions = [
   { value: "star", label: "Destaque", icon: Star },
 ];
 
-export function LinkEditor({ link, clicks, onUpdate, onDelete, onResetClicks, onDragStart, onDragOver, onDrop, isDragging }: LinkEditorProps) {
+export function LinkEditor({ link, clicks, userId, onUpdate, onDelete, onResetClicks, onDragStart, onDragOver, onDrop, isDragging }: LinkEditorProps) {
   const selectedIcon = iconOptions.find(opt => opt.value === link.icon) || iconOptions[0];
   const IconComponent = selectedIcon.icon;
 
@@ -43,6 +46,9 @@ export function LinkEditor({ link, clicks, onUpdate, onDelete, onResetClicks, on
     : link.linkType === "audio"
     ? "URL do SoundCloud ou MP3"
     : "https://...";
+
+  const fileAccept = link.linkType === "video" ? "video/mp4,video/webm" : link.linkType === "audio" ? "audio/mp3,audio/mpeg,audio/wav,audio/ogg" : "image/*";
+  const uploadLabel = link.linkType === "video" ? "Subir Vídeo" : link.linkType === "audio" ? "Subir Áudio" : "Subir Imagem";
 
   return (
     <div
@@ -85,14 +91,27 @@ export function LinkEditor({ link, clicks, onUpdate, onDelete, onResetClicks, on
               <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
                 URL {link.linkType === "video" ? "do Vídeo" : link.linkType === "audio" ? "do Áudio" : "do Link"}
               </label>
-              <Input
-                value={link.url}
-                onChange={(e) => onUpdate(link.id, { url: e.target.value })}
-                placeholder={urlPlaceholder}
-                className="bg-input border-border"
-              />
+              <div className="flex items-center gap-2">
+                <Input
+                  value={link.url}
+                  onChange={(e) => onUpdate(link.id, { url: e.target.value })}
+                  placeholder={urlPlaceholder}
+                  className="bg-input border-border flex-1"
+                />
+                <FileUpload
+                  accept={fileAccept}
+                  label={uploadLabel}
+                  userId={userId}
+                  onUploadComplete={(url) => onUpdate(link.id, { url })}
+                />
+              </div>
             </div>
           </div>
+
+          {/* Media Preview */}
+          {(link.linkType === "video" || link.linkType === "audio") && (
+            <MediaPreview url={link.url} linkType={link.linkType} />
+          )}
 
           {/* Icon and Toggle */}
           <div className="flex flex-wrap items-center gap-4">

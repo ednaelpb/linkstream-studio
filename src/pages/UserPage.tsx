@@ -8,6 +8,7 @@ import { VideoPlayer } from "@/components/VideoPlayer";
 import { AudioPlayer } from "@/components/AudioPlayer";
 import { ShareBar } from "@/components/ShareBar";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
+import { getDeviceInfo } from "@/hooks/useClickAnalytics";
 
 const UserPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -52,17 +53,32 @@ const UserPage = () => {
       ]);
 
       if (settingsRes.data) {
+        const s = settingsRes.data;
         setSettings({
-          brandName: settingsRes.data.brand_name ?? defaultSettings.brandName,
-          description: settingsRes.data.description ?? defaultSettings.description,
-          logo: settingsRes.data.logo ?? "",
-          buttonColor: settingsRes.data.button_color ?? defaultSettings.buttonColor,
-          buttonTextColor: settingsRes.data.button_text_color ?? defaultSettings.buttonTextColor,
-          backgroundColor: settingsRes.data.background_color ?? defaultSettings.backgroundColor,
-          backgroundGradient: settingsRes.data.background_gradient ?? defaultSettings.backgroundGradient,
-          backgroundImage: settingsRes.data.background_image ?? "",
-          shadowIntensity: settingsRes.data.shadow_intensity ?? defaultSettings.shadowIntensity,
+          brandName: s.brand_name ?? defaultSettings.brandName,
+          description: s.description ?? defaultSettings.description,
+          logo: s.logo ?? "",
+          buttonColor: s.button_color ?? defaultSettings.buttonColor,
+          buttonTextColor: s.button_text_color ?? defaultSettings.buttonTextColor,
+          backgroundColor: s.background_color ?? defaultSettings.backgroundColor,
+          backgroundGradient: s.background_gradient ?? defaultSettings.backgroundGradient,
+          backgroundImage: s.background_image ?? "",
+          shadowIntensity: s.shadow_intensity ?? defaultSettings.shadowIntensity,
+          seoTitle: (s as any).seo_title ?? "",
+          seoDescription: (s as any).seo_description ?? "",
+          pageTitle: (s as any).page_title ?? "",
         });
+        // Set SEO meta tags
+        document.title = (s as any).seo_title || s.brand_name || "Bio Link";
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+          metaDesc.setAttribute("content", (s as any).seo_description || s.description || "");
+        } else {
+          const meta = document.createElement("meta");
+          meta.name = "description";
+          meta.content = (s as any).seo_description || s.description || "";
+          document.head.appendChild(meta);
+        }
       }
 
       if (linksRes.data) {
@@ -86,8 +102,15 @@ const UserPage = () => {
     loadUserData();
   }, [slug]);
 
-  const incrementClick = async (id: string) => {
-    await supabase.rpc("increment_click", { link_id: id });
+  const trackClick = async (id: string) => {
+    const info = getDeviceInfo();
+    await supabase.rpc("track_click", {
+      p_link_id: id,
+      p_device_type: info.deviceType,
+      p_browser: info.browser,
+      p_os: info.os,
+      p_referrer: info.referrer,
+    });
   };
 
   if (loading) {
@@ -180,7 +203,7 @@ const UserPage = () => {
                   buttonColor={settings.buttonColor}
                   textColor={settings.buttonTextColor}
                   shadowIntensity={settings.shadowIntensity}
-                  onClick={() => incrementClick(link.id)}
+                  onClick={() => trackClick(link.id)}
                 />
               );
             }
@@ -194,7 +217,7 @@ const UserPage = () => {
                   buttonColor={settings.buttonColor}
                   textColor={settings.buttonTextColor}
                   shadowIntensity={settings.shadowIntensity}
-                  onClick={() => incrementClick(link.id)}
+                  onClick={() => trackClick(link.id)}
                 />
               );
             }
@@ -206,7 +229,7 @@ const UserPage = () => {
                 textColor={settings.buttonTextColor}
                 shadowIntensity={settings.shadowIntensity}
                 index={index}
-                onClick={incrementClick}
+                onClick={trackClick}
               />
             );
           })}

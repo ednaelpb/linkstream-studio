@@ -8,7 +8,6 @@ export function useSupabaseSettings(userId: string | undefined) {
 
   useEffect(() => {
     if (!userId) {
-      // Public view: load first available settings
       supabase
         .from("site_settings")
         .select("*")
@@ -76,6 +75,9 @@ function mapDbToSettings(data: any): SiteSettings {
     backgroundGradient: data.background_gradient ?? defaultSettings.backgroundGradient,
     backgroundImage: data.background_image ?? "",
     shadowIntensity: data.shadow_intensity ?? defaultSettings.shadowIntensity,
+    seoTitle: data.seo_title ?? "",
+    seoDescription: data.seo_description ?? "",
+    pageTitle: data.page_title ?? "Painel Administrativo",
   };
 }
 
@@ -91,5 +93,8 @@ function mapSettingsToDb(s: SiteSettings, userId: string) {
     background_gradient: s.backgroundGradient,
     background_image: s.backgroundImage,
     shadow_intensity: s.shadowIntensity,
+    seo_title: s.seoTitle,
+    seo_description: s.seoDescription,
+    page_title: s.pageTitle,
   };
 }
