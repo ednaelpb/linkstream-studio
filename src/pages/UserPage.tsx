@@ -63,6 +63,7 @@ const UserPage = () => {
           backgroundColor: s.background_color ?? defaultSettings.backgroundColor,
           backgroundGradient: s.background_gradient ?? defaultSettings.backgroundGradient,
           backgroundImage: s.background_image ?? "",
+          backgroundOpacity: (s as any).background_opacity ?? defaultSettings.backgroundOpacity,
           shadowIntensity: s.shadow_intensity ?? defaultSettings.shadowIntensity,
           seoTitle: (s as any).seo_title ?? "",
           seoDescription: (s as any).seo_description ?? "",
@@ -154,18 +155,27 @@ const UserPage = () => {
 
     if (settings.backgroundImage) {
       return {
-        backgroundImage: `${gradient ? gradient + ',' : ''} url(${settings.backgroundImage})`,
-        backgroundColor: solidColor,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundBlendMode: "overlay" as const,
+        background: base,
       };
     }
     return { background: base };
   })();
 
+  const imageOverlayStyle: React.CSSProperties | null = settings.backgroundImage
+    ? {
+        position: "absolute" as const,
+        inset: 0,
+        backgroundImage: `url(${settings.backgroundImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        opacity: settings.backgroundOpacity,
+        pointerEvents: "none" as const,
+      }
+    : null;
+
   return (
     <div className="min-h-screen flex flex-col items-center px-4 py-12 relative" style={backgroundStyle}>
+      {imageOverlayStyle && <div style={imageOverlayStyle} />}
       <div className="absolute top-4 right-4 z-10">
         <DarkModeToggle />
       </div>
