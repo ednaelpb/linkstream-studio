@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { BioLink, SiteSettings, defaultSettings, defaultLinks } from "@/types";
 import { AdminLogin } from "@/components/AdminLogin";
@@ -53,6 +53,34 @@ const Admin = () => {
     };
     setLinks(prev => [...prev, newLink]);
   };
+
+  // Drag and drop
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+
+  const handleDragStart = useCallback((e: React.DragEvent, id: string) => {
+    setDraggedId(id);
+    e.dataTransfer.effectAllowed = "move";
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    if (!draggedId || draggedId === targetId) return;
+
+    setLinks(prev => {
+      const items = [...prev];
+      const dragIndex = items.findIndex(l => l.id === draggedId);
+      const dropIndex = items.findIndex(l => l.id === targetId);
+      const [moved] = items.splice(dragIndex, 1);
+      items.splice(dropIndex, 0, moved);
+      return items.map((item, i) => ({ ...item, order: i }));
+    });
+    setDraggedId(null);
+  }, [draggedId, setLinks]);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -223,13 +251,19 @@ const Admin = () => {
             </Button>
           </div>
           
-          <div className="space-y-4">
-            {links.map((link) => (
+          <div className="space-y-4" onDragEnd={() => setDraggedId(null)}>
+            {links
+              .sort((a, b) => a.order - b.order)
+              .map((link) => (
               <LinkEditor
                 key={link.id}
                 link={link}
                 onUpdate={updateLink}
                 onDelete={deleteLink}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                isDragging={draggedId === link.id}
               />
             ))}
 
