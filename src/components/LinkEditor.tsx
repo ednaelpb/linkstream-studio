@@ -9,6 +9,10 @@ interface LinkEditorProps {
   link: BioLink;
   onUpdate: (id: string, updates: Partial<BioLink>) => void;
   onDelete: (id: string) => void;
+  onDragStart: (e: React.DragEvent, id: string) => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent, id: string) => void;
+  isDragging: boolean;
 }
 
 const iconOptions = [
@@ -26,15 +30,21 @@ const iconOptions = [
   { value: "star", label: "Destaque", icon: Star },
 ];
 
-export function LinkEditor({ link, onUpdate, onDelete }: LinkEditorProps) {
+export function LinkEditor({ link, onUpdate, onDelete, onDragStart, onDragOver, onDrop, isDragging }: LinkEditorProps) {
   const selectedIcon = iconOptions.find(opt => opt.value === link.icon) || iconOptions[0];
   const IconComponent = selectedIcon.icon;
 
   return (
-    <div className="admin-card group">
+    <div
+      className={`admin-card group transition-all duration-200 ${isDragging ? 'opacity-40 scale-[0.98]' : ''}`}
+      draggable
+      onDragStart={(e) => onDragStart(e, link.id)}
+      onDragOver={onDragOver}
+      onDrop={(e) => onDrop(e, link.id)}
+    >
       <div className="flex items-start gap-4">
         {/* Drag Handle */}
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted/50 cursor-grab hover:bg-muted transition-colors">
+        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted/50 cursor-grab active:cursor-grabbing hover:bg-muted transition-colors">
           <GripVertical className="w-4 h-4 text-muted-foreground" />
         </div>
 
