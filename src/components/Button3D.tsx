@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { motion } from "framer-motion";
 import { ExternalLink, MessageCircle, Instagram, Youtube, Link, Music, Mail, Phone, Globe, ShoppingBag, Heart, Star } from "lucide-react";
 import { BioLink } from "@/types";
 
@@ -46,14 +47,12 @@ export function Button3D({ link, buttonColor, textColor, shadowIntensity, index,
     transform: isPressed ? 'translateY(2px)' : 'translateY(0)',
   };
 
-  const animationClass = `animate-float-in-delay-${Math.min(index, 4)}`;
-
   return (
-    <a
+    <motion.a
       href={link.url}
       target="_blank"
       rel="noopener noreferrer"
-      className={`relative flex items-center justify-center gap-3 w-full px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-150 ease-out hover:-translate-y-0.5 ${animationClass}`}
+      className="relative flex items-center justify-center gap-3 w-full px-8 py-4 rounded-2xl font-semibold text-lg transition-shadow duration-150 ease-out"
       style={baseStyles}
       onClick={handleClick}
       onMouseDown={() => setIsPressed(true)}
@@ -61,6 +60,17 @@ export function Button3D({ link, buttonColor, textColor, shadowIntensity, index,
       onMouseLeave={() => setIsPressed(false)}
       onTouchStart={() => setIsPressed(true)}
       onTouchEnd={() => setIsPressed(false)}
+      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ 
+        delay: 0.15 + index * 0.1, 
+        duration: 0.5, 
+        type: "spring", 
+        damping: 20,
+        stiffness: 200 
+      }}
+      whileHover={{ y: -3, scale: 1.02 }}
+      whileTap={{ y: 2, scale: 0.98 }}
     >
       {/* Light reflection overlay */}
       <span 
@@ -72,6 +82,6 @@ export function Button3D({ link, buttonColor, textColor, shadowIntensity, index,
       
       <Icon className="w-5 h-5 relative z-10" />
       <span className="relative z-10">{link.label}</span>
-    </a>
+    </motion.a>
   );
 }

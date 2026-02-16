@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Plus, ExternalLink, ImagePlus, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, ExternalLink, ImagePlus, Trash2, Image } from "lucide-react";
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -44,8 +44,24 @@ const Admin = () => {
       buttonTextColor: theme.buttonTextColor,
       backgroundColor: theme.backgroundColor,
       backgroundGradient: theme.backgroundGradient,
+      backgroundImage: theme.backgroundImage,
       shadowIntensity: theme.shadowIntensity,
     });
+  };
+
+  const handleBgImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        updateSettings({ backgroundImage: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeBgImage = () => {
+    updateSettings({ backgroundImage: "" });
   };
 
   const updateLink = (id: string, updates: Partial<BioLink>) => {
@@ -258,6 +274,42 @@ const Admin = () => {
               <span className="text-sm font-mono text-muted-foreground w-12 text-right">
                 {settings.shadowIntensity.toFixed(1)}
               </span>
+            </div>
+          </div>
+
+          {/* Background Image */}
+          <div className="mt-6 space-y-3">
+            <label className="text-sm font-medium text-muted-foreground block">
+              <Image className="w-4 h-4 inline mr-1.5" />
+              Imagem de Fundo
+            </label>
+            <div className="flex items-center gap-4">
+              {settings.backgroundImage ? (
+                <div className="relative">
+                  <img 
+                    src={settings.backgroundImage} 
+                    alt="Fundo"
+                    className="w-32 h-20 rounded-xl object-cover border border-border"
+                  />
+                  <button
+                    onClick={removeBgImage}
+                    className="absolute -top-2 -right-2 p-1 rounded-full bg-destructive text-destructive-foreground"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+              ) : (
+                <label className="w-32 h-20 rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
+                  <ImagePlus className="w-5 h-5 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground mt-1">Upload</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBgImageUpload}
+                    className="hidden"
+                  />
+                </label>
+              )}
             </div>
           </div>
         </section>

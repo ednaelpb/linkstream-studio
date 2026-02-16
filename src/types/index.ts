@@ -15,6 +15,7 @@ export interface SiteSettings {
   buttonTextColor: string;
   backgroundColor: string;
   backgroundGradient: string;
+  backgroundImage: string;
   shadowIntensity: number;
 }
 
@@ -26,6 +27,7 @@ export interface ThemePreset {
   buttonTextColor: string;
   backgroundColor: string;
   backgroundGradient: string;
+  backgroundImage: string;
   shadowIntensity: number;
 }
 
@@ -38,6 +40,7 @@ export const themePresets: ThemePreset[] = [
     buttonTextColor: "0 0% 100%",
     backgroundColor: "200 50% 10%",
     backgroundGradient: "linear-gradient(135deg, hsl(200 50% 10%) 0%, hsl(220 50% 15%) 50%, hsl(190 60% 20%) 100%)",
+    backgroundImage: "",
     shadowIntensity: 1,
   },
   {
@@ -48,6 +51,7 @@ export const themePresets: ThemePreset[] = [
     buttonTextColor: "0 0% 100%",
     backgroundColor: "220 20% 95%",
     backgroundGradient: "linear-gradient(135deg, hsl(220 20% 95%) 0%, hsl(230 25% 90%) 50%, hsl(210 30% 92%) 100%)",
+    backgroundImage: "",
     shadowIntensity: 0.8,
   },
   {
@@ -58,6 +62,7 @@ export const themePresets: ThemePreset[] = [
     buttonTextColor: "0 0% 100%",
     backgroundColor: "260 30% 8%",
     backgroundGradient: "linear-gradient(135deg, hsl(260 30% 8%) 0%, hsl(280 40% 12%) 50%, hsl(300 35% 10%) 100%)",
+    backgroundImage: "",
     shadowIntensity: 1.5,
   },
   {
@@ -68,6 +73,7 @@ export const themePresets: ThemePreset[] = [
     buttonTextColor: "340 30% 20%",
     backgroundColor: "330 30% 95%",
     backgroundGradient: "linear-gradient(135deg, hsl(330 30% 95%) 0%, hsl(280 25% 93%) 50%, hsl(340 35% 94%) 100%)",
+    backgroundImage: "",
     shadowIntensity: 0.6,
   },
 ];
@@ -80,6 +86,7 @@ export const defaultSettings: SiteSettings = {
   buttonTextColor: "0 0% 100%",
   backgroundColor: "200 50% 10%",
   backgroundGradient: "linear-gradient(135deg, hsl(200 50% 10%) 0%, hsl(220 50% 15%) 50%, hsl(190 60% 20%) 100%)",
+  backgroundImage: "",
   shadowIntensity: 1,
 };
 
