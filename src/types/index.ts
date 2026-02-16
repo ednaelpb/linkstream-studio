@@ -21,6 +21,22 @@ export interface SiteSettings {
   backgroundGradient: string;
   backgroundImage: string;
   shadowIntensity: number;
+  seoTitle?: string;
+  seoDescription?: string;
+  pageTitle?: string;
+}
+
+export interface ClickAnalytics {
+  id: string;
+  linkId: string;
+  userId: string;
+  clickedAt: string;
+  deviceType?: string;
+  browser?: string;
+  os?: string;
+  country?: string;
+  city?: string;
+  referrer?: string;
 }
 
 export interface ThemePreset {
@@ -136,6 +152,9 @@ export const defaultSettings: SiteSettings = {
   backgroundGradient: "linear-gradient(135deg, hsl(200 50% 10%) 0%, hsl(220 50% 15%) 50%, hsl(190 60% 20%) 100%)",
   backgroundImage: "",
   shadowIntensity: 1,
+  seoTitle: "",
+  seoDescription: "",
+  pageTitle: "Painel Administrativo",
 };
 
 export const defaultLinks: BioLink[] = [

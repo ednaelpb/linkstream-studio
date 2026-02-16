@@ -6,10 +6,23 @@ import { VideoPlayer } from "@/components/VideoPlayer";
 import { AudioPlayer } from "@/components/AudioPlayer";
 import { ShareBar } from "@/components/ShareBar";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
+import { getDeviceInfo } from "@/hooks/useClickAnalytics";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const { settings, loading: settingsLoading } = useSupabaseSettings(undefined);
-  const { links, loading: linksLoading, incrementClick } = useSupabaseLinks(undefined);
+  const { links, loading: linksLoading } = useSupabaseLinks(undefined);
+
+  const trackClick = async (id: string) => {
+    const info = getDeviceInfo();
+    await supabase.rpc("track_click", {
+      p_link_id: id,
+      p_device_type: info.deviceType,
+      p_browser: info.browser,
+      p_os: info.os,
+      p_referrer: info.referrer,
+    });
+  };
 
   const enabledLinks = links.filter(link => link.enabled).sort((a, b) => a.order - b.order);
 
@@ -95,7 +108,7 @@ const Index = () => {
                   buttonColor={settings.buttonColor}
                   textColor={settings.buttonTextColor}
                   shadowIntensity={settings.shadowIntensity}
-                  onClick={() => incrementClick(link.id)}
+                  onClick={() => trackClick(link.id)}
                 />
               );
             }
@@ -109,7 +122,7 @@ const Index = () => {
                   buttonColor={settings.buttonColor}
                   textColor={settings.buttonTextColor}
                   shadowIntensity={settings.shadowIntensity}
-                  onClick={() => incrementClick(link.id)}
+                  onClick={() => trackClick(link.id)}
                 />
               );
             }
@@ -121,7 +134,7 @@ const Index = () => {
                 textColor={settings.buttonTextColor}
                 shadowIntensity={settings.shadowIntensity}
                 index={index}
-                onClick={incrementClick}
+                onClick={trackClick}
               />
             );
           })}
