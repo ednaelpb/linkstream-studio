@@ -5,6 +5,7 @@ export interface BioLink {
   icon?: string;
   enabled: boolean;
   order: number;
+  clickCount?: number;
 }
 
 export interface SiteSettings {
@@ -75,6 +76,50 @@ export const themePresets: ThemePreset[] = [
     backgroundGradient: "linear-gradient(135deg, hsl(330 30% 95%) 0%, hsl(280 25% 93%) 50%, hsl(340 35% 94%) 100%)",
     backgroundImage: "",
     shadowIntensity: 0.6,
+  },
+  {
+    id: "sunset",
+    name: "Pôr do Sol",
+    emoji: "🌅",
+    buttonColor: "25 90% 55%",
+    buttonTextColor: "0 0% 100%",
+    backgroundColor: "15 60% 12%",
+    backgroundGradient: "linear-gradient(135deg, hsl(15 60% 12%) 0%, hsl(25 70% 18%) 40%, hsl(35 50% 15%) 100%)",
+    backgroundImage: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=800&q=60",
+    shadowIntensity: 1.2,
+  },
+  {
+    id: "ocean",
+    name: "Oceano",
+    emoji: "🌊",
+    buttonColor: "200 85% 45%",
+    buttonTextColor: "0 0% 100%",
+    backgroundColor: "210 60% 10%",
+    backgroundGradient: "linear-gradient(135deg, hsl(210 60% 10%) 0%, hsl(200 70% 18%) 50%, hsl(195 55% 15%) 100%)",
+    backgroundImage: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=60",
+    shadowIntensity: 1,
+  },
+  {
+    id: "forest",
+    name: "Floresta",
+    emoji: "🌿",
+    buttonColor: "145 60% 40%",
+    buttonTextColor: "0 0% 100%",
+    backgroundColor: "150 40% 8%",
+    backgroundGradient: "linear-gradient(135deg, hsl(150 40% 8%) 0%, hsl(140 50% 14%) 50%, hsl(160 35% 10%) 100%)",
+    backgroundImage: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&q=60",
+    shadowIntensity: 0.9,
+  },
+  {
+    id: "galaxy",
+    name: "Galáxia",
+    emoji: "🌌",
+    buttonColor: "270 80% 60%",
+    buttonTextColor: "0 0% 100%",
+    backgroundColor: "260 50% 6%",
+    backgroundGradient: "linear-gradient(135deg, hsl(260 50% 6%) 0%, hsl(280 60% 12%) 50%, hsl(300 40% 8%) 100%)",
+    backgroundImage: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800&q=60",
+    shadowIntensity: 1.4,
   },
 ];
 
