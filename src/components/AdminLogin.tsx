@@ -23,13 +23,31 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
     setIsLoading(true);
     setError("");
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       setError(error.message === "Invalid login credentials" ? "E-mail ou senha incorretos." : error.message);
-    } else {
-      onLogin();
+      setIsLoading(false);
+      return;
     }
+
+    // Check if user is blocked
+    if (authData?.user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_blocked")
+        .eq("user_id", authData.user.id)
+        .maybeSingle();
+
+      if (profile?.is_blocked) {
+        await supabase.auth.signOut();
+        setError("Sua conta foi bloqueada. Entre em contato com o administrador.");
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    onLogin();
     setIsLoading(false);
   };
 
@@ -136,7 +154,7 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
                 <UserPlus className="w-8 h-8 text-primary" />
               </div>
               <h1 className="text-2xl font-bold text-foreground">Criar Conta</h1>
-              <p className="text-muted-foreground mt-2 text-center">Crie sua conta de administrador</p>
+              <p className="text-muted-foreground mt-2 text-center">Crie sua conta</p>
             </div>
 
             <form onSubmit={handleSignup} className="space-y-4">

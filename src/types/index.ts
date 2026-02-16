@@ -1,3 +1,5 @@
+export type LinkType = 'link' | 'video' | 'audio';
+
 export interface BioLink {
   id: string;
   label: string;
@@ -6,6 +8,7 @@ export interface BioLink {
   enabled: boolean;
   order: number;
   clickCount?: number;
+  linkType: LinkType;
 }
 
 export interface SiteSettings {
@@ -136,8 +139,8 @@ export const defaultSettings: SiteSettings = {
 };
 
 export const defaultLinks: BioLink[] = [
-  { id: "1", label: "Meu Site", url: "https://exemplo.com", enabled: true, order: 0 },
-  { id: "2", label: "WhatsApp", url: "https://wa.me/5511999999999", icon: "message-circle", enabled: true, order: 1 },
-  { id: "3", label: "Instagram", url: "https://instagram.com", icon: "instagram", enabled: true, order: 2 },
-  { id: "4", label: "YouTube", url: "https://youtube.com", icon: "youtube", enabled: true, order: 3 },
+  { id: "1", label: "Meu Site", url: "https://exemplo.com", enabled: true, order: 0, linkType: "link" },
+  { id: "2", label: "WhatsApp", url: "https://wa.me/5511999999999", icon: "message-circle", enabled: true, order: 1, linkType: "link" },
+  { id: "3", label: "Instagram", url: "https://instagram.com", icon: "instagram", enabled: true, order: 2, linkType: "link" },
+  { id: "4", label: "YouTube", url: "https://youtube.com", icon: "youtube", enabled: true, order: 3, linkType: "link" },
 ];

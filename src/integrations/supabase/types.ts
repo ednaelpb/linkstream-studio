@@ -22,6 +22,7 @@ export type Database = {
           icon: string | null
           id: string
           label: string
+          link_type: string
           sort_order: number | null
           updated_at: string
           url: string
@@ -34,6 +35,7 @@ export type Database = {
           icon?: string | null
           id?: string
           label?: string
+          link_type?: string
           sort_order?: number | null
           updated_at?: string
           url?: string
@@ -46,6 +48,7 @@ export type Database = {
           icon?: string | null
           id?: string
           label?: string
+          link_type?: string
           sort_order?: number | null
           updated_at?: string
           url?: string
@@ -62,6 +65,7 @@ export type Database = {
           id: string
           is_blocked: boolean
           max_links: number
+          slug: string | null
           updated_at: string
           user_id: string
         }
@@ -73,6 +77,7 @@ export type Database = {
           id?: string
           is_blocked?: boolean
           max_links?: number
+          slug?: string | null
           updated_at?: string
           user_id: string
         }
@@ -84,6 +89,7 @@ export type Database = {
           id?: string
           is_blocked?: boolean
           max_links?: number
+          slug?: string | null
           updated_at?: string
           user_id?: string
         }

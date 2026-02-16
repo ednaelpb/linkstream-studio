@@ -46,6 +46,7 @@ export function useSupabaseLinks(userId: string | undefined) {
       if (updates.icon !== undefined) dbUpdates.icon = updates.icon;
       if (updates.enabled !== undefined) dbUpdates.enabled = updates.enabled;
       if (updates.order !== undefined) dbUpdates.sort_order = updates.order;
+      if (updates.linkType !== undefined) dbUpdates.link_type = updates.linkType;
 
       await supabase.from("bio_links").update(dbUpdates).eq("id", id);
     },
@@ -57,18 +58,21 @@ export function useSupabaseLinks(userId: string | undefined) {
     await supabase.from("bio_links").delete().eq("id", id);
   }, []);
 
-  const addLink = useCallback(async () => {
+  const addLink = useCallback(async (linkType: string = 'link') => {
     if (!userId) return;
+    const labels: Record<string, string> = { link: "Novo Link", video: "Novo Vídeo", audio: "Novo Áudio" };
+    const icons: Record<string, string> = { link: "external-link", video: "youtube", audio: "music" };
     const { data, error } = await supabase
       .from("bio_links")
       .insert({
         user_id: userId,
-        label: "Novo Link",
+        label: labels[linkType] || "Novo Link",
         url: "https://",
-        icon: "external-link",
+        icon: icons[linkType] || "external-link",
         enabled: true,
         sort_order: links.length,
-      })
+        link_type: linkType,
+      } as any)
       .select()
       .single();
 
@@ -124,5 +128,6 @@ function mapDbToLink(data: any): BioLink {
     enabled: data.enabled ?? true,
     order: data.sort_order ?? 0,
     clickCount: data.click_count ?? 0,
+    linkType: data.link_type || "link",
   };
 }

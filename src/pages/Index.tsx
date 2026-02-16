@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { useSupabaseSettings } from "@/hooks/useSupabaseSettings";
 import { useSupabaseLinks } from "@/hooks/useSupabaseLinks";
 import { Button3D } from "@/components/Button3D";
+import { VideoPlayer } from "@/components/VideoPlayer";
+import { AudioPlayer } from "@/components/AudioPlayer";
 import { ShareBar } from "@/components/ShareBar";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 
@@ -82,17 +84,47 @@ const Index = () => {
 
         {/* Links */}
         <div className="w-full space-y-4">
-          {enabledLinks.map((link, index) => (
-            <Button3D
-              key={link.id}
-              link={link}
-              buttonColor={settings.buttonColor}
-              textColor={settings.buttonTextColor}
-              shadowIntensity={settings.shadowIntensity}
-              index={index}
-              onClick={incrementClick}
-            />
-          ))}
+          {enabledLinks.map((link, index) => {
+            if (link.linkType === "video") {
+              return (
+                <VideoPlayer
+                  key={link.id}
+                  url={link.url}
+                  label={link.label}
+                  index={index}
+                  buttonColor={settings.buttonColor}
+                  textColor={settings.buttonTextColor}
+                  shadowIntensity={settings.shadowIntensity}
+                  onClick={() => incrementClick(link.id)}
+                />
+              );
+            }
+            if (link.linkType === "audio") {
+              return (
+                <AudioPlayer
+                  key={link.id}
+                  url={link.url}
+                  label={link.label}
+                  index={index}
+                  buttonColor={settings.buttonColor}
+                  textColor={settings.buttonTextColor}
+                  shadowIntensity={settings.shadowIntensity}
+                  onClick={() => incrementClick(link.id)}
+                />
+              );
+            }
+            return (
+              <Button3D
+                key={link.id}
+                link={link}
+                buttonColor={settings.buttonColor}
+                textColor={settings.buttonTextColor}
+                shadowIntensity={settings.shadowIntensity}
+                index={index}
+                onClick={incrementClick}
+              />
+            );
+          })}
         </div>
 
         {/* Share */}
