@@ -10,16 +10,18 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Plus, ExternalLink, ImagePlus, Trash2, Image, Save, Check } from "lucide-react";
+import { ArrowLeft, Plus, ExternalLink, ImagePlus, Trash2, Image, Save, Check, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
+import { UserManagement } from "@/components/UserManagement";
 
 const Admin = () => {
   const [session, setSession] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const [settings, setSettings] = useLocalStorage<SiteSettings>("biolink_settings", defaultSettings);
   const [links, setLinks] = useLocalStorage<BioLink[]>("biolink_links", defaultLinks);
@@ -30,15 +32,26 @@ const Admin = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setIsLoading(false);
+      if (session?.user?.id) checkAdmin(session.user.id);
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setIsLoading(false);
+      if (session?.user?.id) checkAdmin(session.user.id);
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const checkAdmin = async (userId: string) => {
+    const { data } = await supabase
+      .from("user_roles" as any)
+      .select("role")
+      .eq("user_id", userId)
+      .maybeSingle();
+    setIsAdmin((data as any)?.role === "admin");
+  };
 
   const resetClicks = (id: string) => {
     setClickCounts(prev => ({ ...prev, [id]: 0 }));
@@ -345,6 +358,17 @@ const Admin = () => {
             )}
           </div>
         </section>
+
+        {/* User Management - Admin Only */}
+        {isAdmin && (
+          <section className="glass-card">
+            <div className="flex items-center gap-3 mb-6">
+              <Users className="w-5 h-5 text-primary" />
+              <h2 className="text-lg font-semibold">Gerenciar Usuários</h2>
+            </div>
+            <UserManagement />
+          </section>
+        )}
       </main>
 
       {/* Floating save indicator */}
