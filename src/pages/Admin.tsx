@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { BioLink, SiteSettings, defaultSettings, defaultLinks } from "@/types";
+import { BioLink, SiteSettings, defaultSettings, defaultLinks, ThemePreset } from "@/types";
+import { ThemeSelector } from "@/components/ThemeSelector";
 import { AdminLogin } from "@/components/AdminLogin";
 import { LinkEditor } from "@/components/LinkEditor";
 import { ColorPicker } from "@/components/ColorPicker";
@@ -30,6 +31,16 @@ const Admin = () => {
 
   const updateSettings = (updates: Partial<SiteSettings>) => {
     setSettings(prev => ({ ...prev, ...updates }));
+  };
+
+  const applyTheme = (theme: ThemePreset) => {
+    updateSettings({
+      buttonColor: theme.buttonColor,
+      buttonTextColor: theme.buttonTextColor,
+      backgroundColor: theme.backgroundColor,
+      backgroundGradient: theme.backgroundGradient,
+      shadowIntensity: theme.shadowIntensity,
+    });
   };
 
   const updateLink = (id: string, updates: Partial<BioLink>) => {
@@ -203,6 +214,14 @@ const Admin = () => {
         {/* Appearance Settings */}
         <section className="glass-card">
           <h2 className="text-lg font-semibold mb-6">Aparência</h2>
+
+          {/* Theme Presets */}
+          <div className="mb-8">
+            <ThemeSelector
+              currentSettings={settings}
+              onSelectTheme={applyTheme}
+            />
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <ColorPicker
