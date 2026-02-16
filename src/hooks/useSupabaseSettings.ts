@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteSettings, defaultSettings } from "@/types";
 
@@ -32,27 +32,34 @@ export function useSupabaseSettings(userId: string | undefined) {
       });
   }, [userId]);
 
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const latestSettingsRef = useRef<SiteSettings>(settings);
+
   const updateSettings = useCallback(
-    async (updates: Partial<SiteSettings>) => {
-      const newSettings = { ...settings, ...updates };
+    (updates: Partial<SiteSettings>) => {
+      const newSettings = { ...latestSettingsRef.current, ...updates };
       setSettings(newSettings);
+      latestSettingsRef.current = newSettings;
 
       if (!userId) return;
 
-      const dbData = mapSettingsToDb(newSettings, userId);
-      const { data: existing } = await supabase
-        .from("site_settings")
-        .select("id")
-        .eq("user_id", userId)
-        .maybeSingle();
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(async () => {
+        const dbData = mapSettingsToDb(latestSettingsRef.current, userId);
+        const { data: existing } = await supabase
+          .from("site_settings")
+          .select("id")
+          .eq("user_id", userId)
+          .maybeSingle();
 
-      if (existing) {
-        await supabase.from("site_settings").update(dbData).eq("user_id", userId);
-      } else {
-        await supabase.from("site_settings").insert(dbData);
-      }
+        if (existing) {
+          await supabase.from("site_settings").update(dbData).eq("user_id", userId);
+        } else {
+          await supabase.from("site_settings").insert(dbData);
+        }
+      }, 800);
     },
-    [settings, userId]
+    [userId]
   );
 
   return { settings, updateSettings, loading };
