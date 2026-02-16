@@ -56,6 +56,56 @@ export type Database = {
         }
         Relationships: []
       }
+      click_analytics: {
+        Row: {
+          browser: string | null
+          city: string | null
+          clicked_at: string
+          country: string | null
+          device_type: string | null
+          id: string
+          ip_hash: string | null
+          link_id: string
+          os: string | null
+          referrer: string | null
+          user_id: string
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          clicked_at?: string
+          country?: string | null
+          device_type?: string | null
+          id?: string
+          ip_hash?: string | null
+          link_id: string
+          os?: string | null
+          referrer?: string | null
+          user_id: string
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          clicked_at?: string
+          country?: string | null
+          device_type?: string | null
+          id?: string
+          ip_hash?: string | null
+          link_id?: string
+          os?: string | null
+          referrer?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "click_analytics_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "bio_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -107,6 +157,9 @@ export type Database = {
           description: string | null
           id: string
           logo: string | null
+          page_title: string | null
+          seo_description: string | null
+          seo_title: string | null
           shadow_intensity: number | null
           updated_at: string
           user_id: string
@@ -122,6 +175,9 @@ export type Database = {
           description?: string | null
           id?: string
           logo?: string | null
+          page_title?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
           shadow_intensity?: number | null
           updated_at?: string
           user_id: string
@@ -137,6 +193,9 @@ export type Database = {
           description?: string | null
           id?: string
           logo?: string | null
+          page_title?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
           shadow_intensity?: number | null
           updated_at?: string
           user_id?: string
@@ -174,6 +233,18 @@ export type Database = {
         Returns: boolean
       }
       increment_click: { Args: { link_id: string }; Returns: undefined }
+      track_click: {
+        Args: {
+          p_browser?: string
+          p_city?: string
+          p_country?: string
+          p_device_type?: string
+          p_link_id: string
+          p_os?: string
+          p_referrer?: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
