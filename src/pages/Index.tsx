@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { BioLink, SiteSettings, defaultSettings, defaultLinks } from "@/types";
 import { Button3D } from "@/components/Button3D";
+import { ShareBar } from "@/components/ShareBar";
 
 const Index = () => {
   const [settings] = useLocalStorage<SiteSettings>("biolink_settings", defaultSettings);
@@ -64,8 +65,13 @@ const Index = () => {
           ))}
         </div>
 
+        {/* Share */}
+        <div className="mt-10">
+          <ShareBar brandName={settings.brandName} />
+        </div>
+
         {/* Footer */}
-        <div className="mt-16 text-center animate-float-in-delay-4">
+        <div className="mt-10 text-center animate-float-in-delay-4">
           <p className="text-sm text-muted-foreground/60">
             Feito com ❤️ usando Bio Link
           </p>
