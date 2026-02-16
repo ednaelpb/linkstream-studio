@@ -5,6 +5,7 @@ import { BioLink, SiteSettings, defaultSettings, defaultLinks } from "@/types";
 import { Button3D } from "@/components/Button3D";
 import { ShareBar } from "@/components/ShareBar";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { Language, t } from "@/lib/i18n";
 
 const Index = () => {
@@ -34,8 +35,10 @@ const Index = () => {
       className="min-h-screen flex flex-col items-center px-4 py-12 relative"
       style={backgroundStyle}
     >
-      <LanguageToggle lang={lang} onToggle={setLang} />
-
+      <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+        <DarkModeToggle />
+        <LanguageToggle lang={lang} onToggle={setLang} />
+      </div>
       <div className="w-full max-w-md flex flex-col items-center">
         {/* Logo */}
         <motion.div
