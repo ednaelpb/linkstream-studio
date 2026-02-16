@@ -17,6 +17,7 @@ export type Database = {
       bio_links: {
         Row: {
           click_count: number | null
+          cover_image: string | null
           created_at: string
           enabled: boolean | null
           icon: string | null
@@ -30,6 +31,7 @@ export type Database = {
         }
         Insert: {
           click_count?: number | null
+          cover_image?: string | null
           created_at?: string
           enabled?: boolean | null
           icon?: string | null
@@ -43,6 +45,7 @@ export type Database = {
         }
         Update: {
           click_count?: number | null
+          cover_image?: string | null
           created_at?: string
           enabled?: boolean | null
           icon?: string | null

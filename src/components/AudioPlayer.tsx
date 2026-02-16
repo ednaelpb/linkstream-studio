@@ -9,6 +9,7 @@ interface AudioPlayerProps {
   buttonColor: string;
   textColor: string;
   shadowIntensity: number;
+  coverImage?: string;
   onClick?: () => void;
 }
 
@@ -19,7 +20,7 @@ function getSoundCloudEmbed(url: string): string | null {
   return null;
 }
 
-export function AudioPlayer({ url, label, index, buttonColor, textColor, shadowIntensity, onClick }: AudioPlayerProps) {
+export function AudioPlayer({ url, label, index, buttonColor, textColor, shadowIntensity, coverImage, onClick }: AudioPlayerProps) {
   const scEmbed = getSoundCloudEmbed(url);
   const isNative = !scEmbed;
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -122,6 +123,11 @@ export function AudioPlayer({ url, label, index, buttonColor, textColor, shadowI
           <audio ref={audioRef} src={url} preload="metadata" />
 
           <div className="flex items-center gap-4">
+            {/* Cover Image */}
+            {coverImage && (
+              <img src={coverImage} alt={label} className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
+            )}
+
             {/* Play button */}
             <button
               onClick={togglePlay}

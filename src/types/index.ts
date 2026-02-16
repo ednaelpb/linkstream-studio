@@ -9,6 +9,7 @@ export interface BioLink {
   order: number;
   clickCount?: number;
   linkType: LinkType;
+  coverImage?: string;
 }
 
 export interface SiteSettings {

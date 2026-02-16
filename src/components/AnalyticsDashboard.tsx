@@ -1,7 +1,8 @@
 import { useClickAnalytics } from "@/hooks/useClickAnalytics";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line } from "recharts";
-import { MousePointerClick, Smartphone, Monitor, Tablet, Globe, TrendingUp } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import { MousePointerClick, Smartphone, Monitor, Tablet, Globe, TrendingUp, Download, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const COLORS = [
   "hsl(217 91% 60%)",
@@ -22,8 +23,72 @@ interface Props {
   userId: string;
 }
 
+function ProgressBar({ value, max, color }: { value: number; max: number; color: string }) {
+  return (
+    <div className="h-1.5 bg-muted rounded-full mt-1">
+      <div
+        className="h-full rounded-full transition-all"
+        style={{ width: `${(value / max) * 100}%`, backgroundColor: color }}
+      />
+    </div>
+  );
+}
+
+function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
+  return (
+    <div className="bg-card rounded-xl p-4 border border-border">
+      <div className="flex items-center gap-2 text-muted-foreground mb-1">
+        {icon}
+        <span className="text-xs font-medium">{label}</span>
+      </div>
+      <p className="text-2xl font-bold text-foreground">{value}</p>
+    </div>
+  );
+}
+
+function DataList({ items, labelKey, colorOffset = 0, max }: { items: { [key: string]: any }[]; labelKey: string; colorOffset?: number; max: number }) {
+  return (
+    <div className="space-y-3">
+      {items.slice(0, 5).map((item, i) => (
+        <div key={item[labelKey]} className="flex items-center gap-3">
+          <div className="flex-1">
+            <div className="flex justify-between text-sm">
+              <span className="text-foreground">{item[labelKey]}</span>
+              <span className="text-muted-foreground font-mono">{item.clicks}</span>
+            </div>
+            <ProgressBar value={item.clicks} max={max} color={COLORS[(i + colorOffset) % COLORS.length]} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function AnalyticsDashboard({ userId }: Props) {
-  const { clicksByDay, clicksByDevice, clicksByBrowser, clicksByOS, clicksByLink, totalClicks, loading } = useClickAnalytics(userId);
+  const { clicksByDay, clicksByDevice, clicksByBrowser, clicksByOS, clicksByLink, clicksByCountry, clicksByCity, totalClicks, loading, rawData } = useClickAnalytics(userId);
+
+  const exportCSV = () => {
+    if (!rawData.length) return;
+    const headers = ["Data", "Link", "Dispositivo", "Navegador", "SO", "País", "Cidade", "Referrer"];
+    const rows = rawData.map((a: any) => [
+      new Date(a.clicked_at).toLocaleString("pt-BR"),
+      (a.bio_links as any)?.label || "Link",
+      a.device_type || "",
+      a.browser || "",
+      a.os || "",
+      a.country || "",
+      a.city || "",
+      a.referrer || "",
+    ]);
+    const csv = [headers, ...rows].map(r => r.map((c: string) => `"${c}"`).join(",")).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `analytics_${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   if (loading) {
     return <div className="text-center py-8 text-muted-foreground">Carregando analytics...</div>;
@@ -41,38 +106,20 @@ export function AnalyticsDashboard({ userId }: Props) {
 
   return (
     <div className="space-y-6">
+      {/* Export Button */}
+      <div className="flex justify-end">
+        <Button variant="outline" size="sm" onClick={exportCSV}>
+          <Download className="w-4 h-4 mr-1.5" />
+          Exportar CSV
+        </Button>
+      </div>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-card rounded-xl p-4 border border-border">
-          <div className="flex items-center gap-2 text-muted-foreground mb-1">
-            <MousePointerClick className="w-4 h-4" />
-            <span className="text-xs font-medium">Total Cliques</span>
-          </div>
-          <p className="text-2xl font-bold text-foreground">{totalClicks}</p>
-        </div>
-        <div className="bg-card rounded-xl p-4 border border-border">
-          <div className="flex items-center gap-2 text-muted-foreground mb-1">
-            <TrendingUp className="w-4 h-4" />
-            <span className="text-xs font-medium">Hoje</span>
-          </div>
-          <p className="text-2xl font-bold text-foreground">
-            {clicksByDay.length > 0 ? clicksByDay[clicksByDay.length - 1].clicks : 0}
-          </p>
-        </div>
-        <div className="bg-card rounded-xl p-4 border border-border">
-          <div className="flex items-center gap-2 text-muted-foreground mb-1">
-            <Smartphone className="w-4 h-4" />
-            <span className="text-xs font-medium">Dispositivos</span>
-          </div>
-          <p className="text-2xl font-bold text-foreground">{clicksByDevice.length}</p>
-        </div>
-        <div className="bg-card rounded-xl p-4 border border-border">
-          <div className="flex items-center gap-2 text-muted-foreground mb-1">
-            <Globe className="w-4 h-4" />
-            <span className="text-xs font-medium">Links Ativos</span>
-          </div>
-          <p className="text-2xl font-bold text-foreground">{clicksByLink.length}</p>
-        </div>
+        <StatCard icon={<MousePointerClick className="w-4 h-4" />} label="Total Cliques" value={totalClicks} />
+        <StatCard icon={<TrendingUp className="w-4 h-4" />} label="Hoje" value={clicksByDay.length > 0 ? clicksByDay[clicksByDay.length - 1].clicks : 0} />
+        <StatCard icon={<Smartphone className="w-4 h-4" />} label="Dispositivos" value={clicksByDevice.length} />
+        <StatCard icon={<Globe className="w-4 h-4" />} label="Links Ativos" value={clicksByLink.length} />
       </div>
 
       {/* Clicks per Day Chart */}
@@ -98,7 +145,6 @@ export function AnalyticsDashboard({ userId }: Props) {
 
       {/* Device + Browser + OS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Devices */}
         <div className="bg-card rounded-xl p-5 border border-border">
           <h3 className="text-sm font-semibold text-foreground mb-4">Dispositivos</h3>
           <div className="space-y-3">
@@ -112,71 +158,39 @@ export function AnalyticsDashboard({ userId }: Props) {
                     <span className="capitalize text-foreground">{d.device}</span>
                     <span className="text-muted-foreground font-mono">{d.clicks}</span>
                   </div>
-                  <div className="h-1.5 bg-muted rounded-full mt-1">
-                    <div
-                      className="h-full rounded-full transition-all"
-                      style={{
-                        width: `${(d.clicks / totalClicks) * 100}%`,
-                        backgroundColor: COLORS[i % COLORS.length],
-                      }}
-                    />
-                  </div>
+                  <ProgressBar value={d.clicks} max={totalClicks} color={COLORS[i % COLORS.length]} />
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Browsers */}
         <div className="bg-card rounded-xl p-5 border border-border">
           <h3 className="text-sm font-semibold text-foreground mb-4">Navegadores</h3>
-          <div className="space-y-3">
-            {clicksByBrowser.slice(0, 5).map((b, i) => (
-              <div key={b.browser} className="flex items-center gap-3">
-                <div className="flex-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-foreground">{b.browser}</span>
-                    <span className="text-muted-foreground font-mono">{b.clicks}</span>
-                  </div>
-                  <div className="h-1.5 bg-muted rounded-full mt-1">
-                    <div
-                      className="h-full rounded-full transition-all"
-                      style={{
-                        width: `${(b.clicks / totalClicks) * 100}%`,
-                        backgroundColor: COLORS[i % COLORS.length],
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <DataList items={clicksByBrowser} labelKey="browser" max={totalClicks} />
         </div>
 
-        {/* OS */}
         <div className="bg-card rounded-xl p-5 border border-border">
           <h3 className="text-sm font-semibold text-foreground mb-4">Sistemas Operacionais</h3>
-          <div className="space-y-3">
-            {clicksByOS.slice(0, 5).map((o, i) => (
-              <div key={o.os} className="flex items-center gap-3">
-                <div className="flex-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-foreground">{o.os}</span>
-                    <span className="text-muted-foreground font-mono">{o.clicks}</span>
-                  </div>
-                  <div className="h-1.5 bg-muted rounded-full mt-1">
-                    <div
-                      className="h-full rounded-full transition-all"
-                      style={{
-                        width: `${(o.clicks / totalClicks) * 100}%`,
-                        backgroundColor: COLORS[i % COLORS.length],
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <DataList items={clicksByOS} labelKey="os" max={totalClicks} />
+        </div>
+      </div>
+
+      {/* Geolocation */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-card rounded-xl p-5 border border-border">
+          <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-primary" />
+            Países
+          </h3>
+          <DataList items={clicksByCountry} labelKey="country" max={clicksByCountry[0]?.clicks || 1} />
+        </div>
+        <div className="bg-card rounded-xl p-5 border border-border">
+          <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-primary" />
+            Cidades
+          </h3>
+          <DataList items={clicksByCity} labelKey="city" max={clicksByCity[0]?.clicks || 1} />
         </div>
       </div>
 
@@ -192,15 +206,7 @@ export function AnalyticsDashboard({ userId }: Props) {
                   <span className="text-foreground font-medium truncate">{l.label}</span>
                   <span className="text-muted-foreground font-mono ml-2">{l.clicks}</span>
                 </div>
-                <div className="h-1.5 bg-muted rounded-full mt-1">
-                  <div
-                    className="h-full rounded-full transition-all"
-                    style={{
-                      width: `${(l.clicks / (clicksByLink[0]?.clicks || 1)) * 100}%`,
-                      backgroundColor: COLORS[i % COLORS.length],
-                    }}
-                  />
-                </div>
+                <ProgressBar value={l.clicks} max={clicksByLink[0]?.clicks || 1} color={COLORS[i % COLORS.length]} />
               </div>
             </div>
           ))}
