@@ -2,14 +2,12 @@ import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Copy, Check, QrCode, Share2, X } from "lucide-react";
 import { toast } from "sonner";
-import { Language, t } from "@/lib/i18n";
 
 interface ShareBarProps {
   brandName: string;
-  lang: Language;
 }
 
-export function ShareBar({ brandName, lang }: ShareBarProps) {
+export function ShareBar({ brandName }: ShareBarProps) {
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
 
@@ -19,12 +17,12 @@ export function ShareBar({ brandName, lang }: ShareBarProps) {
     try {
       await navigator.clipboard.writeText(pageUrl);
       setCopied(true);
-      toast.success(t("toast.copied", lang));
+      toast.success("Link copiado!");
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error(t("toast.copyError", lang));
+      toast.error("Não foi possível copiar o link");
     }
-  }, [pageUrl, lang]);
+  }, [pageUrl]);
 
   const handleNativeShare = useCallback(async () => {
     if (navigator.share) {
@@ -48,17 +46,17 @@ export function ShareBar({ brandName, lang }: ShareBarProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8, duration: 0.5 }}
       >
-        <button onClick={handleCopy} className={btnClass} title={t("share.copy", lang)}>
+        <button onClick={handleCopy} className={btnClass} title="Copiar">
           {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
-          <span>{copied ? t("share.copied", lang) : t("share.copy", lang)}</span>
+          <span>{copied ? "Copiado!" : "Copiar"}</span>
         </button>
-        <button onClick={() => setShowQR(true)} className={btnClass} title={t("share.qrcode", lang)}>
+        <button onClick={() => setShowQR(true)} className={btnClass} title="QR Code">
           <QrCode className="w-4 h-4" />
-          <span>{t("share.qrcode", lang)}</span>
+          <span>QR Code</span>
         </button>
-        <button onClick={handleNativeShare} className={btnClass} title={t("share.send", lang)}>
+        <button onClick={handleNativeShare} className={btnClass} title="Enviar">
           <Share2 className="w-4 h-4" />
-          <span>{t("share.send", lang)}</span>
+          <span>Enviar</span>
         </button>
       </motion.div>
 
@@ -82,8 +80,8 @@ export function ShareBar({ brandName, lang }: ShareBarProps) {
             >
               <X className="w-4 h-4" />
             </button>
-            <h3 className="text-lg font-semibold text-foreground text-center mb-1">{t("share.qrTitle", lang)}</h3>
-            <p className="text-sm text-muted-foreground text-center mb-6">{t("share.qrDescription", lang)}</p>
+            <h3 className="text-lg font-semibold text-foreground text-center mb-1">QR Code</h3>
+            <p className="text-sm text-muted-foreground text-center mb-6">Escaneie para acessar a página</p>
             <div className="flex justify-center rounded-xl overflow-hidden bg-white p-4">
               <img src={qrUrl} alt="QR Code" className="w-48 h-48" loading="lazy" />
             </div>
@@ -92,7 +90,7 @@ export function ShareBar({ brandName, lang }: ShareBarProps) {
               className="mt-5 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors text-sm"
             >
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              {copied ? t("share.linkCopied", lang) : t("share.copyLink", lang)}
+              {copied ? "Link copiado!" : "Copiar link"}
             </button>
           </motion.div>
         </motion.div>

@@ -1,24 +1,15 @@
-import { useCallback, useState } from "react";
 import { motion } from "framer-motion";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { BioLink, SiteSettings, defaultSettings, defaultLinks } from "@/types";
+import { useSupabaseSettings } from "@/hooks/useSupabaseSettings";
+import { useSupabaseLinks } from "@/hooks/useSupabaseLinks";
 import { Button3D } from "@/components/Button3D";
 import { ShareBar } from "@/components/ShareBar";
-import { LanguageToggle } from "@/components/LanguageToggle";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
-import { Language, t } from "@/lib/i18n";
 
 const Index = () => {
-  const [settings] = useLocalStorage<SiteSettings>("biolink_settings", defaultSettings);
-  const [links] = useLocalStorage<BioLink[]>("biolink_links", defaultLinks);
-  const [clickCounts, setClickCounts] = useLocalStorage<Record<string, number>>("biolink_clicks", {});
-  const [lang, setLang] = useState<Language>("pt");
+  const { settings, loading: settingsLoading } = useSupabaseSettings(undefined);
+  const { links, loading: linksLoading, incrementClick } = useSupabaseLinks(undefined);
 
   const enabledLinks = links.filter(link => link.enabled).sort((a, b) => a.order - b.order);
-
-  const handleLinkClick = useCallback((id: string) => {
-    setClickCounts(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
-  }, [setClickCounts]);
 
   const backgroundStyle: React.CSSProperties = {
     background: settings.backgroundGradient,
@@ -30,14 +21,21 @@ const Index = () => {
     } : {}),
   };
 
+  if (settingsLoading || linksLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-foreground">Carregando...</div>
+      </div>
+    );
+  }
+
   return (
     <div 
       className="min-h-screen flex flex-col items-center px-4 py-12 relative"
       style={backgroundStyle}
     >
-      <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+      <div className="absolute top-4 right-4 z-10">
         <DarkModeToggle />
-        <LanguageToggle lang={lang} onToggle={setLang} />
       </div>
       <div className="w-full max-w-md flex flex-col items-center">
         {/* Logo */}
@@ -92,14 +90,14 @@ const Index = () => {
               textColor={settings.buttonTextColor}
               shadowIntensity={settings.shadowIntensity}
               index={index}
-              onClick={handleLinkClick}
+              onClick={incrementClick}
             />
           ))}
         </div>
 
         {/* Share */}
         <div className="mt-10">
-          <ShareBar brandName={settings.brandName} lang={lang} />
+          <ShareBar brandName={settings.brandName} />
         </div>
 
         {/* Footer */}
@@ -110,7 +108,7 @@ const Index = () => {
           transition={{ delay: 1, duration: 0.5 }}
         >
           <p className="text-sm text-muted-foreground/60">
-            {t("footer.madeWith", lang)}
+            Feito com ❤️ usando Bio Link
           </p>
         </motion.div>
       </div>
