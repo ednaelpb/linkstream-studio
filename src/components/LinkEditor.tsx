@@ -3,13 +3,14 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { GripVertical, Trash2, ExternalLink, MessageCircle, Instagram, Youtube, Link, Music, Mail, Phone, Globe, ShoppingBag, Heart, Star, MousePointerClick } from "lucide-react";
+import { GripVertical, Trash2, ExternalLink, MessageCircle, Instagram, Youtube, Link, Music, Mail, Phone, Globe, ShoppingBag, Heart, Star, MousePointerClick, RotateCcw } from "lucide-react";
 
 interface LinkEditorProps {
   link: BioLink;
   clicks: number;
   onUpdate: (id: string, updates: Partial<BioLink>) => void;
   onDelete: (id: string) => void;
+  onResetClicks: (id: string) => void;
   onDragStart: (e: React.DragEvent, id: string) => void;
   onDragOver: (e: React.DragEvent) => void;
   onDrop: (e: React.DragEvent, id: string) => void;
@@ -31,7 +32,7 @@ const iconOptions = [
   { value: "star", label: "Destaque", icon: Star },
 ];
 
-export function LinkEditor({ link, clicks, onUpdate, onDelete, onDragStart, onDragOver, onDrop, isDragging }: LinkEditorProps) {
+export function LinkEditor({ link, clicks, onUpdate, onDelete, onResetClicks, onDragStart, onDragOver, onDrop, isDragging }: LinkEditorProps) {
   const selectedIcon = iconOptions.find(opt => opt.value === link.icon) || iconOptions[0];
   const IconComponent = selectedIcon.icon;
 
@@ -112,6 +113,15 @@ export function LinkEditor({ link, clicks, onUpdate, onDelete, onDragStart, onDr
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/50 text-muted-foreground" title="Cliques">
               <MousePointerClick className="w-3.5 h-3.5" />
               <span className="text-sm font-mono font-medium">{clicks}</span>
+              {clicks > 0 && (
+                <button
+                  onClick={() => onResetClicks(link.id)}
+                  className="ml-1 p-0.5 rounded hover:bg-muted transition-colors"
+                  title="Zerar cliques"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                </button>
+              )}
             </div>
 
             <div className="flex items-center gap-3">
