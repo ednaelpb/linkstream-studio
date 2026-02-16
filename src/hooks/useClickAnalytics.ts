@@ -14,7 +14,9 @@ interface AnalyticsData {
   rawData: any[];
 }
 
-export function useClickAnalytics(userId: string | undefined): AnalyticsData {
+export type PeriodDays = 7 | 30 | 90;
+
+export function useClickAnalytics(userId: string | undefined, periodDays: PeriodDays = 30): AnalyticsData {
   const [data, setData] = useState<AnalyticsData>({
     clicksByDay: [],
     clicksByDevice: [],
@@ -32,23 +34,28 @@ export function useClickAnalytics(userId: string | undefined): AnalyticsData {
     if (!userId) return;
 
     const fetchAnalytics = async () => {
-      // Fetch all analytics for user
+      setData(prev => ({ ...prev, loading: true }));
+
+      const since = new Date();
+      since.setDate(since.getDate() - periodDays);
+
       const { data: analytics } = await supabase
         .from("click_analytics")
         .select("*, bio_links!inner(label)")
         .eq("user_id", userId)
+        .gte("clicked_at", since.toISOString())
         .order("clicked_at", { ascending: false })
         .limit(1000);
 
       if (!analytics || analytics.length === 0) {
-        setData(prev => ({ ...prev, loading: false }));
+        setData(prev => ({ ...prev, loading: false, totalClicks: 0, clicksByDay: [], clicksByDevice: [], clicksByBrowser: [], clicksByOS: [], clicksByLink: [], clicksByCountry: [], clicksByCity: [], rawData: [] }));
         return;
       }
 
-      // Clicks by day (last 30 days)
+      // Clicks by day
       const dayMap: Record<string, number> = {};
       const now = new Date();
-      for (let i = 29; i >= 0; i--) {
+      for (let i = periodDays - 1; i >= 0; i--) {
         const d = new Date(now);
         d.setDate(d.getDate() - i);
         dayMap[d.toISOString().split("T")[0]] = 0;
@@ -59,29 +66,20 @@ export function useClickAnalytics(userId: string | undefined): AnalyticsData {
       });
       const clicksByDay = Object.entries(dayMap).map(([date, clicks]) => ({ date, clicks }));
 
-      // Clicks by device
-      const deviceMap: Record<string, number> = {};
-      analytics.forEach((a: any) => {
-        const d = a.device_type || "Desconhecido";
-        deviceMap[d] = (deviceMap[d] || 0) + 1;
-      });
-      const clicksByDevice = Object.entries(deviceMap).map(([device, clicks]) => ({ device, clicks }));
+      const aggregate = (key: string, fallback: string) => {
+        const map: Record<string, number> = {};
+        analytics.forEach((a: any) => {
+          const v = a[key] || fallback;
+          map[v] = (map[v] || 0) + 1;
+        });
+        return Object.entries(map).map(([name, clicks]) => ({ name, clicks })).sort((a, b) => b.clicks - a.clicks);
+      };
 
-      // Clicks by browser
-      const browserMap: Record<string, number> = {};
-      analytics.forEach((a: any) => {
-        const b = a.browser || "Desconhecido";
-        browserMap[b] = (browserMap[b] || 0) + 1;
-      });
-      const clicksByBrowser = Object.entries(browserMap).map(([browser, clicks]) => ({ browser, clicks }));
-
-      // Clicks by OS
-      const osMap: Record<string, number> = {};
-      analytics.forEach((a: any) => {
-        const o = a.os || "Desconhecido";
-        osMap[o] = (osMap[o] || 0) + 1;
-      });
-      const clicksByOS = Object.entries(osMap).map(([os, clicks]) => ({ os, clicks }));
+      const clicksByDevice = aggregate("device_type", "Desconhecido").map(({ name, clicks }) => ({ device: name, clicks }));
+      const clicksByBrowser = aggregate("browser", "Desconhecido").map(({ name, clicks }) => ({ browser: name, clicks }));
+      const clicksByOS = aggregate("os", "Desconhecido").map(({ name, clicks }) => ({ os: name, clicks }));
+      const clicksByCountry = aggregate("country", "Desconhecido").map(({ name, clicks }) => ({ country: name, clicks }));
+      const clicksByCity = aggregate("city", "Desconhecido").map(({ name, clicks }) => ({ city: name, clicks }));
 
       // Clicks by link
       const linkMap: Record<string, { label: string; clicks: number }> = {};
@@ -94,40 +92,14 @@ export function useClickAnalytics(userId: string | undefined): AnalyticsData {
       const clicksByLink = Object.entries(linkMap).map(([linkId, { label, clicks }]) => ({ linkId, label, clicks }));
       clicksByLink.sort((a, b) => b.clicks - a.clicks);
 
-      // Clicks by country
-      const countryMap: Record<string, number> = {};
-      analytics.forEach((a: any) => {
-        const c = a.country || "Desconhecido";
-        countryMap[c] = (countryMap[c] || 0) + 1;
-      });
-      const clicksByCountry = Object.entries(countryMap).map(([country, clicks]) => ({ country, clicks }));
-      clicksByCountry.sort((a, b) => b.clicks - a.clicks);
-
-      // Clicks by city
-      const cityMap: Record<string, number> = {};
-      analytics.forEach((a: any) => {
-        const c = a.city || "Desconhecido";
-        cityMap[c] = (cityMap[c] || 0) + 1;
-      });
-      const clicksByCity = Object.entries(cityMap).map(([city, clicks]) => ({ city, clicks }));
-      clicksByCity.sort((a, b) => b.clicks - a.clicks);
-
       setData({
-        clicksByDay,
-        clicksByDevice,
-        clicksByBrowser,
-        clicksByOS,
-        clicksByLink,
-        clicksByCountry,
-        clicksByCity,
-        totalClicks: analytics.length,
-        loading: false,
-        rawData: analytics,
+        clicksByDay, clicksByDevice, clicksByBrowser, clicksByOS, clicksByLink, clicksByCountry, clicksByCity,
+        totalClicks: analytics.length, loading: false, rawData: analytics,
       });
     };
 
     fetchAnalytics();
-  }, [userId]);
+  }, [userId, periodDays]);
 
   return data;
 }

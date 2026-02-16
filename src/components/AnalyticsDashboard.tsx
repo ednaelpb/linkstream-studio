@@ -1,8 +1,10 @@
-import { useClickAnalytics } from "@/hooks/useClickAnalytics";
+import { useState } from "react";
+import { useClickAnalytics, PeriodDays } from "@/hooks/useClickAnalytics";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell, Legend, ResponsiveContainer, Tooltip } from "recharts";
 import { MousePointerClick, Smartphone, Monitor, Tablet, Globe, TrendingUp, Download, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 const COLORS = [
   "hsl(217 91% 60%)",
@@ -11,6 +13,8 @@ const COLORS = [
   "hsl(280 100% 60%)",
   "hsl(340 60% 70%)",
   "hsl(200 85% 45%)",
+  "hsl(50 80% 50%)",
+  "hsl(0 70% 55%)",
 ];
 
 const deviceIcons: Record<string, React.ReactNode> = {
@@ -26,10 +30,7 @@ interface Props {
 function ProgressBar({ value, max, color }: { value: number; max: number; color: string }) {
   return (
     <div className="h-1.5 bg-muted rounded-full mt-1">
-      <div
-        className="h-full rounded-full transition-all"
-        style={{ width: `${(value / max) * 100}%`, backgroundColor: color }}
-      />
+      <div className="h-full rounded-full transition-all" style={{ width: `${(value / max) * 100}%`, backgroundColor: color }} />
     </div>
   );
 }
@@ -64,8 +65,33 @@ function DataList({ items, labelKey, colorOffset = 0, max }: { items: { [key: st
   );
 }
 
+function PieSection({ title, icon, data, nameKey }: { title: string; icon: React.ReactNode; data: { [key: string]: any }[]; nameKey: string }) {
+  const pieData = data.slice(0, 6).map((item) => ({ name: item[nameKey], value: item.clicks }));
+  if (pieData.length === 0) return null;
+
+  return (
+    <div className="bg-card rounded-xl p-5 border border-border">
+      <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">{icon}{title}</h3>
+      <div className="h-[220px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={75} innerRadius={40} paddingAngle={3} strokeWidth={0}>
+              {pieData.map((_, i) => (
+                <Cell key={i} fill={COLORS[i % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", color: "hsl(var(--foreground))" }} />
+            <Legend wrapperStyle={{ fontSize: "12px" }} />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}
+
 export function AnalyticsDashboard({ userId }: Props) {
-  const { clicksByDay, clicksByDevice, clicksByBrowser, clicksByOS, clicksByLink, clicksByCountry, clicksByCity, totalClicks, loading, rawData } = useClickAnalytics(userId);
+  const [period, setPeriod] = useState<PeriodDays>(30);
+  const { clicksByDay, clicksByDevice, clicksByBrowser, clicksByOS, clicksByLink, clicksByCountry, clicksByCity, totalClicks, loading, rawData } = useClickAnalytics(userId, period);
 
   const exportCSV = () => {
     if (!rawData.length) return;
@@ -73,12 +99,7 @@ export function AnalyticsDashboard({ userId }: Props) {
     const rows = rawData.map((a: any) => [
       new Date(a.clicked_at).toLocaleString("pt-BR"),
       (a.bio_links as any)?.label || "Link",
-      a.device_type || "",
-      a.browser || "",
-      a.os || "",
-      a.country || "",
-      a.city || "",
-      a.referrer || "",
+      a.device_type || "", a.browser || "", a.os || "", a.country || "", a.city || "", a.referrer || "",
     ]);
     const csv = [headers, ...rows].map(r => r.map((c: string) => `"${c}"`).join(",")).join("\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
@@ -106,8 +127,13 @@ export function AnalyticsDashboard({ userId }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Export Button */}
-      <div className="flex justify-end">
+      {/* Period Filter + Export */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <ToggleGroup type="single" value={String(period)} onValueChange={(v) => v && setPeriod(Number(v) as PeriodDays)}>
+          <ToggleGroupItem value="7" className="text-xs px-3">7 dias</ToggleGroupItem>
+          <ToggleGroupItem value="30" className="text-xs px-3">30 dias</ToggleGroupItem>
+          <ToggleGroupItem value="90" className="text-xs px-3">90 dias</ToggleGroupItem>
+        </ToggleGroup>
         <Button variant="outline" size="sm" onClick={exportCSV}>
           <Download className="w-4 h-4 mr-1.5" />
           Exportar CSV
@@ -124,17 +150,12 @@ export function AnalyticsDashboard({ userId }: Props) {
 
       {/* Clicks per Day Chart */}
       <div className="bg-card rounded-xl p-5 border border-border">
-        <h3 className="text-sm font-semibold text-foreground mb-4">Cliques por Dia (30 dias)</h3>
+        <h3 className="text-sm font-semibold text-foreground mb-4">Cliques por Dia ({period} dias)</h3>
         <div className="h-[200px]">
           <ChartContainer config={{ clicks: { label: "Cliques", color: "hsl(217 91% 60%)" } }}>
             <BarChart data={clicksByDay}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis
-                dataKey="date"
-                tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-                tickFormatter={(v) => new Date(v).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
-                interval="preserveStartEnd"
-              />
+              <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => new Date(v).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} interval="preserveStartEnd" />
               <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Bar dataKey="clicks" fill="hsl(217 91% 60%)" radius={[4, 4, 0, 0]} />
@@ -143,73 +164,46 @@ export function AnalyticsDashboard({ userId }: Props) {
         </div>
       </div>
 
-      {/* Device + Browser + OS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-card rounded-xl p-5 border border-border">
-          <h3 className="text-sm font-semibold text-foreground mb-4">Dispositivos</h3>
-          <div className="space-y-3">
-            {clicksByDevice.map((d, i) => (
-              <div key={d.device} className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted">
-                  {deviceIcons[d.device] || <Monitor className="w-4 h-4" />}
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="capitalize text-foreground">{d.device}</span>
-                    <span className="text-muted-foreground font-mono">{d.clicks}</span>
-                  </div>
-                  <ProgressBar value={d.clicks} max={totalClicks} color={COLORS[i % COLORS.length]} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* Pie Charts: Devices + Countries */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <PieSection title="Dispositivos" icon={<Monitor className="w-4 h-4 text-primary" />} data={clicksByDevice} nameKey="device" />
+        <PieSection title="Países" icon={<Globe className="w-4 h-4 text-primary" />} data={clicksByCountry} nameKey="country" />
+      </div>
 
+      {/* Browser + OS Lists */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-card rounded-xl p-5 border border-border">
           <h3 className="text-sm font-semibold text-foreground mb-4">Navegadores</h3>
           <DataList items={clicksByBrowser} labelKey="browser" max={totalClicks} />
         </div>
-
         <div className="bg-card rounded-xl p-5 border border-border">
           <h3 className="text-sm font-semibold text-foreground mb-4">Sistemas Operacionais</h3>
           <DataList items={clicksByOS} labelKey="os" max={totalClicks} />
         </div>
       </div>
 
-      {/* Geolocation */}
+      {/* Geolocation Lists */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-card rounded-xl p-5 border border-border">
-          <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-primary" />
-            Países
-          </h3>
-          <DataList items={clicksByCountry} labelKey="country" max={clicksByCountry[0]?.clicks || 1} />
-        </div>
-        <div className="bg-card rounded-xl p-5 border border-border">
-          <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-primary" />
-            Cidades
-          </h3>
+          <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2"><MapPin className="w-4 h-4 text-primary" />Cidades</h3>
           <DataList items={clicksByCity} labelKey="city" max={clicksByCity[0]?.clicks || 1} />
         </div>
-      </div>
-
-      {/* Top Links */}
-      <div className="bg-card rounded-xl p-5 border border-border">
-        <h3 className="text-sm font-semibold text-foreground mb-4">Links Mais Clicados</h3>
-        <div className="space-y-3">
-          {clicksByLink.slice(0, 10).map((l, i) => (
-            <div key={l.linkId} className="flex items-center gap-3">
-              <span className="text-xs font-bold text-muted-foreground w-6 text-right">#{i + 1}</span>
-              <div className="flex-1">
-                <div className="flex justify-between text-sm">
-                  <span className="text-foreground font-medium truncate">{l.label}</span>
-                  <span className="text-muted-foreground font-mono ml-2">{l.clicks}</span>
+        <div className="bg-card rounded-xl p-5 border border-border">
+          <h3 className="text-sm font-semibold text-foreground mb-4">Links Mais Clicados</h3>
+          <div className="space-y-3">
+            {clicksByLink.slice(0, 10).map((l, i) => (
+              <div key={l.linkId} className="flex items-center gap-3">
+                <span className="text-xs font-bold text-muted-foreground w-6 text-right">#{i + 1}</span>
+                <div className="flex-1">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-foreground font-medium truncate">{l.label}</span>
+                    <span className="text-muted-foreground font-mono ml-2">{l.clicks}</span>
+                  </div>
+                  <ProgressBar value={l.clicks} max={clicksByLink[0]?.clicks || 1} color={COLORS[i % COLORS.length]} />
                 </div>
-                <ProgressBar value={l.clicks} max={clicksByLink[0]?.clicks || 1} color={COLORS[i % COLORS.length]} />
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
