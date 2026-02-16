@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { GripVertical, Trash2, ExternalLink, MessageCircle, Instagram, Youtube, Link, Music, Mail, Phone, Globe, ShoppingBag, Heart, Star, MousePointerClick, RotateCcw, Video, Music2 } from "lucide-react";
+import { GripVertical, Trash2, ExternalLink, MessageCircle, Instagram, Youtube, Link, Music, Mail, Phone, Globe, ShoppingBag, Heart, Star, MousePointerClick, RotateCcw, Video, Music2, ImagePlus } from "lucide-react";
 import { MediaPreview } from "@/components/MediaPreview";
 import { FileUpload } from "@/components/FileUpload";
 
@@ -111,6 +111,38 @@ export function LinkEditor({ link, clicks, userId, onUpdate, onDelete, onResetCl
           {/* Media Preview */}
           {(link.linkType === "video" || link.linkType === "audio") && (
             <MediaPreview url={link.url} linkType={link.linkType} />
+          )}
+
+          {/* Cover Image for Audio */}
+          {link.linkType === "audio" && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-muted-foreground block">
+                Imagem de Capa
+              </label>
+              <div className="flex items-center gap-3">
+                {link.coverImage ? (
+                  <div className="relative">
+                    <img src={link.coverImage} alt="Capa" className="w-16 h-16 rounded-lg object-cover border border-border" />
+                    <button
+                      onClick={() => onUpdate(link.id, { coverImage: undefined })}
+                      className="absolute -top-1.5 -right-1.5 p-0.5 rounded-full bg-destructive text-destructive-foreground"
+                    >
+                      <Trash2 className="w-2.5 h-2.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 rounded-lg border-2 border-dashed border-border flex items-center justify-center">
+                    <ImagePlus className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                )}
+                <FileUpload
+                  accept="image/*"
+                  label="Subir Capa"
+                  userId={userId}
+                  onUploadComplete={(url) => onUpdate(link.id, { coverImage: url })}
+                />
+              </div>
+            </div>
           )}
 
           {/* Icon and Toggle */}

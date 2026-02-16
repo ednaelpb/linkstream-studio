@@ -7,8 +7,11 @@ interface AnalyticsData {
   clicksByBrowser: { browser: string; clicks: number }[];
   clicksByOS: { os: string; clicks: number }[];
   clicksByLink: { linkId: string; label: string; clicks: number }[];
+  clicksByCountry: { country: string; clicks: number }[];
+  clicksByCity: { city: string; clicks: number }[];
   totalClicks: number;
   loading: boolean;
+  rawData: any[];
 }
 
 export function useClickAnalytics(userId: string | undefined): AnalyticsData {
@@ -18,8 +21,11 @@ export function useClickAnalytics(userId: string | undefined): AnalyticsData {
     clicksByBrowser: [],
     clicksByOS: [],
     clicksByLink: [],
+    clicksByCountry: [],
+    clicksByCity: [],
     totalClicks: 0,
     loading: true,
+    rawData: [],
   });
 
   useEffect(() => {
@@ -88,14 +94,35 @@ export function useClickAnalytics(userId: string | undefined): AnalyticsData {
       const clicksByLink = Object.entries(linkMap).map(([linkId, { label, clicks }]) => ({ linkId, label, clicks }));
       clicksByLink.sort((a, b) => b.clicks - a.clicks);
 
+      // Clicks by country
+      const countryMap: Record<string, number> = {};
+      analytics.forEach((a: any) => {
+        const c = a.country || "Desconhecido";
+        countryMap[c] = (countryMap[c] || 0) + 1;
+      });
+      const clicksByCountry = Object.entries(countryMap).map(([country, clicks]) => ({ country, clicks }));
+      clicksByCountry.sort((a, b) => b.clicks - a.clicks);
+
+      // Clicks by city
+      const cityMap: Record<string, number> = {};
+      analytics.forEach((a: any) => {
+        const c = a.city || "Desconhecido";
+        cityMap[c] = (cityMap[c] || 0) + 1;
+      });
+      const clicksByCity = Object.entries(cityMap).map(([city, clicks]) => ({ city, clicks }));
+      clicksByCity.sort((a, b) => b.clicks - a.clicks);
+
       setData({
         clicksByDay,
         clicksByDevice,
         clicksByBrowser,
         clicksByOS,
         clicksByLink,
+        clicksByCountry,
+        clicksByCity,
         totalClicks: analytics.length,
         loading: false,
+        rawData: analytics,
       });
     };
 

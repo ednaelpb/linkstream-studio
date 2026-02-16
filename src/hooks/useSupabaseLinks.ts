@@ -47,6 +47,7 @@ export function useSupabaseLinks(userId: string | undefined) {
       if (updates.enabled !== undefined) dbUpdates.enabled = updates.enabled;
       if (updates.order !== undefined) dbUpdates.sort_order = updates.order;
       if (updates.linkType !== undefined) dbUpdates.link_type = updates.linkType;
+      if (updates.coverImage !== undefined) dbUpdates.cover_image = updates.coverImage ?? null;
 
       await supabase.from("bio_links").update(dbUpdates).eq("id", id);
     },
@@ -129,5 +130,6 @@ function mapDbToLink(data: any): BioLink {
     order: data.sort_order ?? 0,
     clickCount: data.click_count ?? 0,
     linkType: data.link_type || "link",
+    coverImage: data.cover_image || undefined,
   };
 }

@@ -92,6 +92,7 @@ const UserPage = () => {
             order: d.sort_order ?? 0,
             clickCount: d.click_count ?? 0,
             linkType: d.link_type || "link",
+            coverImage: d.cover_image || undefined,
           }))
         );
       }
@@ -104,12 +105,26 @@ const UserPage = () => {
 
   const trackClick = async (id: string) => {
     const info = getDeviceInfo();
+
+    // Try to get geolocation from edge function
+    let country: string | null = null;
+    let city: string | null = null;
+    try {
+      const { data: geo } = await supabase.functions.invoke("get-location");
+      if (geo) {
+        country = geo.country;
+        city = geo.city;
+      }
+    } catch {}
+
     await supabase.rpc("track_click", {
       p_link_id: id,
       p_device_type: info.deviceType,
       p_browser: info.browser,
       p_os: info.os,
       p_referrer: info.referrer,
+      p_country: country,
+      p_city: city,
     });
   };
 
@@ -217,6 +232,7 @@ const UserPage = () => {
                   buttonColor={settings.buttonColor}
                   textColor={settings.buttonTextColor}
                   shadowIntensity={settings.shadowIntensity}
+                  coverImage={link.coverImage}
                   onClick={() => trackClick(link.id)}
                 />
               );
