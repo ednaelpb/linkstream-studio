@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Plus, ExternalLink, ImagePlus, Trash2, Image, Users, Video, Music2, Link2, BarChart3, Search, Settings2, Save, Eye, RefreshCw } from "lucide-react";
+import { ArrowLeft, Plus, ExternalLink, ImagePlus, Trash2, Image, Users, Video, Music2, Link2, BarChart3, Search, Settings2, Save, Eye, RefreshCw, Smartphone, Tablet, Monitor } from "lucide-react";
 import { toast } from "sonner";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { UserManagement } from "@/components/UserManagement";
@@ -27,6 +27,7 @@ const Admin = () => {
   const [slugSaved, setSlugSaved] = useState(false);
   const [activeTab, setActiveTab] = useState<"links" | "analytics" | "settings" | "preview">("links");
   const [previewKey, setPreviewKey] = useState(0);
+  const [previewDevice, setPreviewDevice] = useState<"mobile" | "tablet" | "desktop">("desktop");
 
   const userId = session?.user?.id;
   const { settings, updateSettings, loading: settingsLoading } = useSupabaseSettings(userId);
@@ -539,22 +540,29 @@ const Admin = () => {
                 <Eye className="w-5 h-5 text-primary" />
                 <h2 className="text-lg font-semibold">Preview da Página Pública</h2>
               </div>
+              <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+                {([
+                  { id: "mobile" as const, icon: Smartphone, label: "Mobile" },
+                  { id: "tablet" as const, icon: Tablet, label: "Tablet" },
+                  { id: "desktop" as const, icon: Monitor, label: "Desktop" },
+                ]).map(({ id, icon: Icon, label }) => (
+                  <button
+                    key={id}
+                    onClick={() => setPreviewDevice(id)}
+                    className={`p-1.5 rounded-md transition-colors ${previewDevice === id ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                    title={label}
+                  >
+                    <Icon className="w-4 h-4" />
+                  </button>
+                ))}
+              </div>
               <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPreviewKey(k => k + 1)}
-                >
+                <Button variant="outline" size="sm" onClick={() => setPreviewKey(k => k + 1)}>
                   <RefreshCw className="w-4 h-4 mr-1" />
                   Atualizar
                 </Button>
                 {slug && (
-                  <a
-                    href={`/u/${slug}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
-                  >
+                  <a href={`/u/${slug}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors">
                     <ExternalLink className="w-3.5 h-3.5" />
                     Abrir
                   </a>
@@ -562,13 +570,21 @@ const Admin = () => {
               </div>
             </div>
             {slug ? (
-              <div className="rounded-xl border border-border overflow-hidden bg-background" style={{ height: "70vh" }}>
-                <iframe
-                  key={previewKey}
-                  src={`/u/${slug}`}
-                  className="w-full h-full"
-                  title="Preview da página pública"
-                />
+              <div className="flex justify-center">
+                <div
+                  className="rounded-xl border border-border overflow-hidden bg-background transition-all duration-300"
+                  style={{
+                    width: previewDevice === "mobile" ? 375 : previewDevice === "tablet" ? 768 : "100%",
+                    height: "70vh",
+                  }}
+                >
+                  <iframe
+                    key={previewKey}
+                    src={`/u/${slug}`}
+                    className="w-full h-full"
+                    title="Preview da página pública"
+                  />
+                </div>
               </div>
             ) : (
               <div className="text-center py-16 text-muted-foreground">
