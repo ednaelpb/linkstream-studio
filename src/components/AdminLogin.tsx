@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Lock, ArrowRight, KeyRound, Mail, UserPlus } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,7 +18,13 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [view, setView] = useState<View>("login");
+  const [searchParams] = useSearchParams();
 
+  useEffect(() => {
+    const initialView = searchParams.get("view");
+    if (initialView === "signup") setView("signup");
+    else if (initialView === "forgot") setView("forgot");
+  }, [searchParams]);
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);

@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
-import { Link2, BarChart3, Palette, Users, ArrowRight, Smartphone } from "lucide-react";
+import { Link2, BarChart3, Palette, ArrowRight, Smartphone, LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
@@ -39,10 +39,16 @@ const Index = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/admin">
+            <Link to="/admin?view=signup">
               <Button size="lg" className="text-base px-8 gap-2">
-                Começar Agora
-                <ArrowRight className="w-4 h-4" />
+                <UserPlus className="w-4 h-4" />
+                Criar Conta Grátis
+              </Button>
+            </Link>
+            <Link to="/admin?view=login">
+              <Button size="lg" variant="outline" className="text-base px-8 gap-2">
+                <LogIn className="w-4 h-4" />
+                Entrar
               </Button>
             </Link>
           </div>
