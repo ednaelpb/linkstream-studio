@@ -14,13 +14,99 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bio_links: {
+        Row: {
+          click_count: number | null
+          created_at: string
+          enabled: boolean | null
+          icon: string | null
+          id: string
+          label: string
+          sort_order: number | null
+          updated_at: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          click_count?: number | null
+          created_at?: string
+          enabled?: boolean | null
+          icon?: string | null
+          id?: string
+          label?: string
+          sort_order?: number | null
+          updated_at?: string
+          url?: string
+          user_id: string
+        }
+        Update: {
+          click_count?: number | null
+          created_at?: string
+          enabled?: boolean | null
+          icon?: string | null
+          id?: string
+          label?: string
+          sort_order?: number | null
+          updated_at?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          background_color: string | null
+          background_gradient: string | null
+          background_image: string | null
+          brand_name: string
+          button_color: string | null
+          button_text_color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          logo: string | null
+          shadow_intensity: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          background_color?: string | null
+          background_gradient?: string | null
+          background_image?: string | null
+          brand_name?: string
+          button_color?: string | null
+          button_text_color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo?: string | null
+          shadow_intensity?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          background_color?: string | null
+          background_gradient?: string | null
+          background_image?: string | null
+          brand_name?: string
+          button_color?: string | null
+          button_text_color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo?: string | null
+          shadow_intensity?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_click: { Args: { link_id: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

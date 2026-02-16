@@ -1,5 +1,5 @@
 import { ThemePreset, themePresets } from "@/types";
-import { Check } from "lucide-react";
+import { Check, Image } from "lucide-react";
 
 interface ThemeSelectorProps {
   currentSettings: {
@@ -26,17 +26,32 @@ export function ThemeSelector({ currentSettings, onSelectTheme }: ThemeSelectorP
             <button
               key={theme.id}
               onClick={() => onSelectTheme(theme)}
-              className={`relative group rounded-xl p-3 border-2 transition-all duration-300 hover:scale-[1.03] ${
+              className={`relative group rounded-xl p-3 border-2 transition-all duration-300 hover:scale-[1.03] overflow-hidden ${
                 active
                   ? "border-primary shadow-lg shadow-primary/20"
                   : "border-border/50 hover:border-border"
               }`}
-              style={{ background: theme.backgroundGradient }}
+              style={{
+                background: theme.backgroundGradient,
+                ...(theme.backgroundImage ? {
+                  backgroundImage: `${theme.backgroundGradient}, url(${theme.backgroundImage})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundBlendMode: "overlay" as const,
+                } : {}),
+              }}
             >
               {/* Active indicator */}
               {active && (
-                <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center z-10">
                   <Check className="w-3 h-3 text-primary-foreground" />
+                </div>
+              )}
+
+              {/* Image indicator */}
+              {theme.backgroundImage && (
+                <div className="absolute top-2 left-2 z-10">
+                  <Image className="w-3.5 h-3.5 text-white/70" />
                 </div>
               )}
 
