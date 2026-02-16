@@ -16,6 +16,7 @@ const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [settings, setSettings] = useLocalStorage<SiteSettings>("biolink_settings", defaultSettings);
   const [links, setLinks] = useLocalStorage<BioLink[]>("biolink_links", defaultLinks);
+  const [clickCounts] = useLocalStorage<Record<string, number>>("biolink_clicks", {});
 
   useEffect(() => {
     const auth = sessionStorage.getItem("admin_authenticated");
@@ -277,6 +278,7 @@ const Admin = () => {
               <LinkEditor
                 key={link.id}
                 link={link}
+                clicks={clickCounts[link.id] || 0}
                 onUpdate={updateLink}
                 onDelete={deleteLink}
                 onDragStart={handleDragStart}

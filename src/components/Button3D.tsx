@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { ExternalLink, MessageCircle, Instagram, Youtube, Link, Music, Mail, Phone, Globe, ShoppingBag, Heart, Star } from "lucide-react";
 import { BioLink } from "@/types";
 
@@ -8,6 +8,7 @@ interface Button3DProps {
   textColor: string;
   shadowIntensity: number;
   index: number;
+  onClick?: (id: string) => void;
 }
 
 const iconMap: Record<string, React.ElementType> = {
@@ -25,8 +26,12 @@ const iconMap: Record<string, React.ElementType> = {
   "star": Star,
 };
 
-export function Button3D({ link, buttonColor, textColor, shadowIntensity, index }: Button3DProps) {
+export function Button3D({ link, buttonColor, textColor, shadowIntensity, index, onClick }: Button3DProps) {
   const [isPressed, setIsPressed] = useState(false);
+
+  const handleClick = useCallback(() => {
+    onClick?.(link.id);
+  }, [onClick, link.id]);
   
   const Icon = link.icon ? iconMap[link.icon] || ExternalLink : ExternalLink;
   
@@ -50,6 +55,7 @@ export function Button3D({ link, buttonColor, textColor, shadowIntensity, index 
       rel="noopener noreferrer"
       className={`relative flex items-center justify-center gap-3 w-full px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-150 ease-out hover:-translate-y-0.5 ${animationClass}`}
       style={baseStyles}
+      onClick={handleClick}
       onMouseDown={() => setIsPressed(true)}
       onMouseUp={() => setIsPressed(false)}
       onMouseLeave={() => setIsPressed(false)}
