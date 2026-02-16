@@ -1,161 +1,84 @@
 import { motion } from "framer-motion";
-import { useSupabaseSettings } from "@/hooks/useSupabaseSettings";
-import { useSupabaseLinks } from "@/hooks/useSupabaseLinks";
-import { Button3D } from "@/components/Button3D";
-import { VideoPlayer } from "@/components/VideoPlayer";
-import { AudioPlayer } from "@/components/AudioPlayer";
-import { ShareBar } from "@/components/ShareBar";
+import { Link } from "react-router-dom";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
-import { getDeviceInfo } from "@/hooks/useClickAnalytics";
-import { supabase } from "@/integrations/supabase/client";
+import { Link2, BarChart3, Palette, Users, ArrowRight, Smartphone } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
-  const { settings, loading: settingsLoading } = useSupabaseSettings(undefined);
-  const { links, loading: linksLoading } = useSupabaseLinks(undefined);
-
-  const trackClick = async (id: string) => {
-    const info = getDeviceInfo();
-    await supabase.rpc("track_click", {
-      p_link_id: id,
-      p_device_type: info.deviceType,
-      p_browser: info.browser,
-      p_os: info.os,
-      p_referrer: info.referrer,
-    });
-  };
-
-  const enabledLinks = links.filter(link => link.enabled).sort((a, b) => a.order - b.order);
-
-  const backgroundStyle: React.CSSProperties = {
-    background: settings.backgroundGradient,
-    ...(settings.backgroundImage ? {
-      backgroundImage: `${settings.backgroundGradient}, url(${settings.backgroundImage})`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundBlendMode: "overlay" as const,
-    } : {}),
-  };
-
-  if (settingsLoading || linksLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-foreground">Carregando...</div>
-      </div>
-    );
-  }
-
   return (
-    <div 
-      className="min-h-screen flex flex-col items-center px-4 py-12 relative"
-      style={backgroundStyle}
-    >
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted relative overflow-hidden">
+      {/* Decorative blobs */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+
       <div className="absolute top-4 right-4 z-10">
         <DarkModeToggle />
       </div>
-      <div className="w-full max-w-md flex flex-col items-center">
-        {/* Logo */}
+
+      {/* Hero */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-16">
         <motion.div
-          className="mb-6"
-          initial={{ opacity: 0, scale: 0.5, y: -20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.6, type: "spring", damping: 15 }}
+          className="text-center max-w-2xl"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
         >
-          {settings.logo ? (
-            <img 
-              src={settings.logo} 
-              alt={settings.brandName}
-              className="w-28 h-28 rounded-full object-cover border-4 border-card/50 shadow-lg"
-            />
-          ) : (
-            <div className="w-28 h-28 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg glow-primary">
-              <span className="text-4xl font-bold text-primary-foreground">
-                {settings.brandName.charAt(0).toUpperCase()}
-              </span>
-            </div>
-          )}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
+            <Link2 className="w-4 h-4" />
+            Bio Link Platform
+          </div>
+
+          <h1 className="text-5xl md:text-6xl font-extrabold text-foreground mb-6 leading-tight">
+            Todos os seus links{" "}
+            <span className="text-primary">em um só lugar</span>
+          </h1>
+
+          <p className="text-lg text-muted-foreground mb-10 max-w-lg mx-auto">
+            Crie sua página personalizada com links, vídeos e áudios. 
+            Compartilhe com o mundo em segundos.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link to="/admin">
+              <Button size="lg" className="text-base px-8 gap-2">
+                Começar Agora
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          </div>
         </motion.div>
 
-        {/* Brand Name */}
-        <motion.h1
-          className="text-3xl font-bold text-foreground mb-2 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          {settings.brandName}
-        </motion.h1>
-
-        {/* Description */}
-        <motion.p
-          className="text-muted-foreground text-center mb-10 max-w-sm"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35, duration: 0.5 }}
-        >
-          {settings.description}
-        </motion.p>
-
-        {/* Links */}
-        <div className="w-full space-y-4">
-          {enabledLinks.map((link, index) => {
-            if (link.linkType === "video") {
-              return (
-                <VideoPlayer
-                  key={link.id}
-                  url={link.url}
-                  label={link.label}
-                  index={index}
-                  buttonColor={settings.buttonColor}
-                  textColor={settings.buttonTextColor}
-                  shadowIntensity={settings.shadowIntensity}
-                  onClick={() => trackClick(link.id)}
-                />
-              );
-            }
-            if (link.linkType === "audio") {
-              return (
-                <AudioPlayer
-                  key={link.id}
-                  url={link.url}
-                  label={link.label}
-                  index={index}
-                  buttonColor={settings.buttonColor}
-                  textColor={settings.buttonTextColor}
-                  shadowIntensity={settings.shadowIntensity}
-                  onClick={() => trackClick(link.id)}
-                />
-              );
-            }
-            return (
-              <Button3D
-                key={link.id}
-                link={link}
-                buttonColor={settings.buttonColor}
-                textColor={settings.buttonTextColor}
-                shadowIntensity={settings.shadowIntensity}
-                index={index}
-                onClick={trackClick}
-              />
-            );
-          })}
-        </div>
-
-        {/* Share */}
-        <div className="mt-10">
-          <ShareBar brandName={settings.brandName} />
-        </div>
-
-        {/* Footer */}
+        {/* Features */}
         <motion.div
-          className="mt-10 text-center"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-20 max-w-4xl w-full"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.7 }}
+        >
+          {[
+            { icon: Link2, title: "Links Ilimitados", desc: "Adicione links, vídeos e áudios" },
+            { icon: Palette, title: "100% Customizável", desc: "Temas, cores e degradês" },
+            { icon: BarChart3, title: "Analytics Completo", desc: "Cliques, dispositivos e localização" },
+            { icon: Smartphone, title: "Responsivo", desc: "Perfeito em qualquer tela" },
+          ].map(({ icon: Icon, title, desc }) => (
+            <div key={title} className="glass-card text-center p-6">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Icon className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="font-semibold text-foreground mb-1">{title}</h3>
+              <p className="text-sm text-muted-foreground">{desc}</p>
+            </div>
+          ))}
+        </motion.div>
+
+        <motion.p
+          className="mt-16 text-sm text-muted-foreground/50"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.5 }}
+          transition={{ delay: 0.8, duration: 0.5 }}
         >
-          <p className="text-sm text-muted-foreground/60">
-            Feito com ❤️ usando Bio Link
-          </p>
-        </motion.div>
+          Feito com ❤️ usando Bio Link
+        </motion.p>
       </div>
     </div>
   );
