@@ -1,13 +1,17 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
+import { motion } from "framer-motion";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { BioLink, SiteSettings, defaultSettings, defaultLinks } from "@/types";
 import { Button3D } from "@/components/Button3D";
 import { ShareBar } from "@/components/ShareBar";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { Language, t } from "@/lib/i18n";
 
 const Index = () => {
   const [settings] = useLocalStorage<SiteSettings>("biolink_settings", defaultSettings);
   const [links] = useLocalStorage<BioLink[]>("biolink_links", defaultLinks);
   const [clickCounts, setClickCounts] = useLocalStorage<Record<string, number>>("biolink_clicks", {});
+  const [lang, setLang] = useState<Language>("pt");
 
   const enabledLinks = links.filter(link => link.enabled).sort((a, b) => a.order - b.order);
 
@@ -15,16 +19,31 @@ const Index = () => {
     setClickCounts(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
   }, [setClickCounts]);
 
+  const backgroundStyle: React.CSSProperties = {
+    background: settings.backgroundGradient,
+    ...(settings.backgroundImage ? {
+      backgroundImage: `${settings.backgroundGradient}, url(${settings.backgroundImage})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundBlendMode: "overlay" as const,
+    } : {}),
+  };
+
   return (
     <div 
       className="min-h-screen flex flex-col items-center px-4 py-12 relative"
-      style={{ background: settings.backgroundGradient }}
+      style={backgroundStyle}
     >
+      <LanguageToggle lang={lang} onToggle={setLang} />
 
-      {/* Content Container */}
       <div className="w-full max-w-md flex flex-col items-center">
         {/* Logo */}
-        <div className="animate-float-in mb-6">
+        <motion.div
+          className="mb-6"
+          initial={{ opacity: 0, scale: 0.5, y: -20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.6, type: "spring", damping: 15 }}
+        >
           {settings.logo ? (
             <img 
               src={settings.logo} 
@@ -38,44 +57,59 @@ const Index = () => {
               </span>
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Brand Name */}
-        <h1 className="text-3xl font-bold text-foreground mb-2 animate-float-in-delay-1 text-center">
+        <motion.h1
+          className="text-3xl font-bold text-foreground mb-2 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+        >
           {settings.brandName}
-        </h1>
+        </motion.h1>
 
         {/* Description */}
-        <p className="text-muted-foreground text-center mb-10 animate-float-in-delay-2 max-w-sm">
+        <motion.p
+          className="text-muted-foreground text-center mb-10 max-w-sm"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35, duration: 0.5 }}
+        >
           {settings.description}
-        </p>
+        </motion.p>
 
         {/* Links */}
         <div className="w-full space-y-4">
           {enabledLinks.map((link, index) => (
-              <Button3D
-                key={link.id}
-                link={link}
-                buttonColor={settings.buttonColor}
-                textColor={settings.buttonTextColor}
-                shadowIntensity={settings.shadowIntensity}
-                index={index}
-                onClick={handleLinkClick}
-              />
+            <Button3D
+              key={link.id}
+              link={link}
+              buttonColor={settings.buttonColor}
+              textColor={settings.buttonTextColor}
+              shadowIntensity={settings.shadowIntensity}
+              index={index}
+              onClick={handleLinkClick}
+            />
           ))}
         </div>
 
         {/* Share */}
         <div className="mt-10">
-          <ShareBar brandName={settings.brandName} />
+          <ShareBar brandName={settings.brandName} lang={lang} />
         </div>
 
         {/* Footer */}
-        <div className="mt-10 text-center animate-float-in-delay-4">
+        <motion.div
+          className="mt-10 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 0.5 }}
+        >
           <p className="text-sm text-muted-foreground/60">
-            Feito com ❤️ usando Bio Link
+            {t("footer.madeWith", lang)}
           </p>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

@@ -1,12 +1,15 @@
 import { useState, useCallback } from "react";
+import { motion } from "framer-motion";
 import { Copy, Check, QrCode, Share2, X } from "lucide-react";
 import { toast } from "sonner";
+import { Language, t } from "@/lib/i18n";
 
 interface ShareBarProps {
   brandName: string;
+  lang: Language;
 }
 
-export function ShareBar({ brandName }: ShareBarProps) {
+export function ShareBar({ brandName, lang }: ShareBarProps) {
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
 
@@ -16,23 +19,18 @@ export function ShareBar({ brandName }: ShareBarProps) {
     try {
       await navigator.clipboard.writeText(pageUrl);
       setCopied(true);
-      toast.success("Link copiado!");
+      toast.success(t("toast.copied", lang));
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Não foi possível copiar o link");
+      toast.error(t("toast.copyError", lang));
     }
-  }, [pageUrl]);
+  }, [pageUrl, lang]);
 
   const handleNativeShare = useCallback(async () => {
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: brandName,
-          url: pageUrl,
-        });
-      } catch {
-        // user cancelled
-      }
+        await navigator.share({ title: brandName, url: pageUrl });
+      } catch { /* cancelled */ }
     } else {
       handleCopy();
     }
@@ -40,52 +38,42 @@ export function ShareBar({ brandName }: ShareBarProps) {
 
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(pageUrl)}&bgcolor=1a1a2e&color=22d3ee&format=svg`;
 
+  const btnClass = "flex items-center gap-2 px-4 py-2.5 rounded-xl bg-card/40 backdrop-blur-sm border border-border/30 text-muted-foreground hover:text-foreground hover:bg-card/60 transition-all duration-200 text-sm font-medium";
+
   return (
     <>
-      <div className="flex items-center justify-center gap-3 animate-float-in-delay-3">
-        {/* Copy Link */}
-        <button
-          onClick={handleCopy}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-card/40 backdrop-blur-sm border border-border/30 text-muted-foreground hover:text-foreground hover:bg-card/60 transition-all duration-200 text-sm font-medium"
-          title="Copiar link"
-        >
-          {copied ? (
-            <Check className="w-4 h-4 text-green-400" />
-          ) : (
-            <Copy className="w-4 h-4" />
-          )}
-          <span>{copied ? "Copiado!" : "Copiar"}</span>
+      <motion.div
+        className="flex items-center justify-center gap-3"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8, duration: 0.5 }}
+      >
+        <button onClick={handleCopy} className={btnClass} title={t("share.copy", lang)}>
+          {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+          <span>{copied ? t("share.copied", lang) : t("share.copy", lang)}</span>
         </button>
-
-        {/* QR Code */}
-        <button
-          onClick={() => setShowQR(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-card/40 backdrop-blur-sm border border-border/30 text-muted-foreground hover:text-foreground hover:bg-card/60 transition-all duration-200 text-sm font-medium"
-          title="QR Code"
-        >
+        <button onClick={() => setShowQR(true)} className={btnClass} title={t("share.qrcode", lang)}>
           <QrCode className="w-4 h-4" />
-          <span>QR Code</span>
+          <span>{t("share.qrcode", lang)}</span>
         </button>
-
-        {/* Native Share (mobile) */}
-        <button
-          onClick={handleNativeShare}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-card/40 backdrop-blur-sm border border-border/30 text-muted-foreground hover:text-foreground hover:bg-card/60 transition-all duration-200 text-sm font-medium"
-          title="Compartilhar"
-        >
+        <button onClick={handleNativeShare} className={btnClass} title={t("share.send", lang)}>
           <Share2 className="w-4 h-4" />
-          <span>Enviar</span>
+          <span>{t("share.send", lang)}</span>
         </button>
-      </div>
+      </motion.div>
 
-      {/* QR Code Modal */}
       {showQR && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-float-in"
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           onClick={() => setShowQR(false)}
         >
-          <div
+          <motion.div
             className="relative bg-card border border-border rounded-2xl p-8 shadow-2xl max-w-xs w-full mx-4"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", damping: 25 }}
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -94,29 +82,20 @@ export function ShareBar({ brandName }: ShareBarProps) {
             >
               <X className="w-4 h-4" />
             </button>
-            <h3 className="text-lg font-semibold text-foreground text-center mb-1">
-              QR Code
-            </h3>
-            <p className="text-sm text-muted-foreground text-center mb-6">
-              Escaneie para acessar a página
-            </p>
+            <h3 className="text-lg font-semibold text-foreground text-center mb-1">{t("share.qrTitle", lang)}</h3>
+            <p className="text-sm text-muted-foreground text-center mb-6">{t("share.qrDescription", lang)}</p>
             <div className="flex justify-center rounded-xl overflow-hidden bg-white p-4">
-              <img
-                src={qrUrl}
-                alt="QR Code"
-                className="w-48 h-48"
-                loading="lazy"
-              />
+              <img src={qrUrl} alt="QR Code" className="w-48 h-48" loading="lazy" />
             </div>
             <button
               onClick={handleCopy}
               className="mt-5 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors text-sm"
             >
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              {copied ? "Link copiado!" : "Copiar link"}
+              {copied ? t("share.linkCopied", lang) : t("share.copyLink", lang)}
             </button>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
     </>
   );
