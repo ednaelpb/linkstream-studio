@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Plus, ExternalLink, ImagePlus, Trash2, Image, Save, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { DarkModeToggle } from "@/components/DarkModeToggle";
 
 const Admin = () => {
   const [session, setSession] = useState<any>(null);
@@ -188,6 +189,7 @@ const Admin = () => {
             <h1 className="text-xl font-bold">Painel Administrativo</h1>
           </div>
           <div className="flex items-center gap-3">
+            <DarkModeToggle />
             {/* Save Button */}
             <Button
               onClick={handleSave}

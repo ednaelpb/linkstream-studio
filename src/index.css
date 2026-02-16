@@ -7,102 +7,125 @@
 /* Premium SaaS Bio Link Design System */
 
 @layer base {
-  :root {
-    --background: 200 50% 10%;
-    --foreground: 0 0% 98%;
+  /* Dark theme (default) */
+  :root,
+  .dark {
+    --background: 220 20% 7%;
+    --foreground: 210 20% 95%;
 
-    --card: 210 40% 15%;
-    --card-foreground: 0 0% 98%;
+    --card: 220 18% 11%;
+    --card-foreground: 210 20% 95%;
 
-    --popover: 210 40% 12%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 220 18% 10%;
+    --popover-foreground: 210 20% 95%;
 
-    --primary: 190 80% 50%;
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 50% 20%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 220 14% 16%;
+    --secondary-foreground: 210 20% 90%;
 
-    --muted: 220 30% 25%;
-    --muted-foreground: 220 20% 65%;
+    --muted: 220 14% 18%;
+    --muted-foreground: 215 16% 55%;
 
-    --accent: 180 70% 45%;
+    --accent: 217 91% 60%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 70% 50%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 30% 25%;
-    --input: 220 30% 20%;
-    --ring: 190 80% 50%;
+    --border: 220 13% 18%;
+    --input: 220 13% 14%;
+    --ring: 217 91% 60%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
 
     /* Custom 3D Button Variables */
-    --button-3d-color: 190 80% 50%;
+    --button-3d-color: 217 91% 60%;
     --button-3d-text: 0 0% 100%;
     --button-3d-shadow-intensity: 1;
-    
+
     /* Gradient Background */
-    --gradient-bg: linear-gradient(135deg, hsl(200 50% 10%) 0%, hsl(220 50% 15%) 50%, hsl(190 60% 20%) 100%);
-    
+    --gradient-bg: linear-gradient(135deg, hsl(220 20% 7%) 0%, hsl(225 25% 10%) 50%, hsl(220 20% 8%) 100%);
+
     /* Glassmorphism */
-    --glass-bg: hsla(210, 40%, 20%, 0.6);
-    --glass-border: hsla(0, 0%, 100%, 0.1);
-    
+    --glass-bg: hsla(220, 18%, 12%, 0.7);
+    --glass-border: hsla(0, 0%, 100%, 0.08);
+
     /* Shadows */
-    --shadow-sm: 0 2px 8px hsla(0, 0%, 0%, 0.2);
-    --shadow-md: 0 4px 16px hsla(0, 0%, 0%, 0.3);
-    --shadow-lg: 0 8px 32px hsla(0, 0%, 0%, 0.4);
-    --shadow-3d: 
-      0 4px 0 hsl(190 80% 35%),
+    --shadow-sm: 0 1px 3px hsla(0, 0%, 0%, 0.3);
+    --shadow-md: 0 4px 12px hsla(0, 0%, 0%, 0.4);
+    --shadow-lg: 0 8px 24px hsla(0, 0%, 0%, 0.5);
+    --shadow-3d:
+      0 4px 0 hsl(217 91% 45%),
       0 6px 12px hsla(0, 0%, 0%, 0.4),
       0 12px 24px hsla(0, 0%, 0%, 0.2);
     --shadow-3d-pressed:
-      0 2px 0 hsl(190 80% 35%),
+      0 2px 0 hsl(217 91% 45%),
       0 3px 6px hsla(0, 0%, 0%, 0.4);
-      
-    --sidebar-background: 210 40% 12%;
-    --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: 190 80% 50%;
+
+    --sidebar-background: 220 18% 10%;
+    --sidebar-foreground: 210 20% 90%;
+    --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 40% 18%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 220 30% 25%;
-    --sidebar-ring: 190 80% 50%;
+    --sidebar-accent: 220 14% 16%;
+    --sidebar-accent-foreground: 210 20% 95%;
+    --sidebar-border: 220 13% 18%;
+    --sidebar-ring: 217 91% 60%;
+
+    /* SaaS specific */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
   }
 
+  /* Light theme */
   .light {
     --background: 0 0% 98%;
-    --foreground: 220 50% 15%;
+    --foreground: 224 71% 4%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 50% 15%;
+    --card-foreground: 224 71% 4%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 50% 15%;
+    --popover-foreground: 224 71% 4%;
 
-    --primary: 190 80% 45%;
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 20% 94%;
-    --secondary-foreground: 220 50% 15%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 14% 30%;
 
-    --muted: 220 20% 90%;
-    --muted-foreground: 220 20% 45%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 180 70% 40%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 220 14% 30%;
 
-    --destructive: 0 70% 50%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 20% 85%;
-    --input: 220 20% 90%;
-    --ring: 190 80% 45%;
-    
-    --glass-bg: hsla(0, 0%, 100%, 0.8);
-    --glass-border: hsla(220, 30%, 80%, 0.5);
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 217 91% 60%;
+
+    --gradient-bg: linear-gradient(135deg, hsl(220 14% 97%) 0%, hsl(220 20% 95%) 50%, hsl(225 14% 97%) 100%);
+
+    --glass-bg: hsla(0, 0%, 100%, 0.85);
+    --glass-border: hsla(220, 13%, 85%, 0.6);
+
+    --shadow-sm: 0 1px 3px hsla(220, 14%, 50%, 0.06);
+    --shadow-md: 0 4px 12px hsla(220, 14%, 50%, 0.08);
+    --shadow-lg: 0 8px 24px hsla(220, 14%, 50%, 0.12);
+    --shadow-3d:
+      0 4px 0 hsl(217 91% 50%),
+      0 6px 12px hsla(217, 91%, 60%, 0.2),
+      0 12px 24px hsla(217, 91%, 60%, 0.1);
+    --shadow-3d-pressed:
+      0 2px 0 hsl(217 91% 50%),
+      0 3px 6px hsla(217, 91%, 60%, 0.2);
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
   }
 }
 
@@ -141,10 +164,10 @@
 
   .btn-3d:hover {
     transform: translateY(-2px);
-    box-shadow: 
-      0 6px 0 hsl(190 80% 35%),
-      0 10px 20px hsla(0, 0%, 0%, 0.5),
-      0 16px 32px hsla(0, 0%, 0%, 0.3);
+    box-shadow:
+      0 6px 0 hsl(217 91% 45%),
+      0 10px 20px hsla(0, 0%, 0%, 0.3),
+      0 16px 32px hsla(0, 0%, 0%, 0.15);
   }
 
   .btn-3d:active {
@@ -164,7 +187,13 @@
   /* Admin Card */
   .admin-card {
     @apply rounded-xl p-5 bg-card border border-border;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .admin-card:hover {
     box-shadow: var(--shadow-md);
+    border-color: hsl(var(--primary) / 0.2);
   }
 }
 
