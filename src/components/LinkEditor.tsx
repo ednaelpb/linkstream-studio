@@ -1,9 +1,9 @@
-import { BioLink } from "@/types";
+import { BioLink, LinkType } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { GripVertical, Trash2, ExternalLink, MessageCircle, Instagram, Youtube, Link, Music, Mail, Phone, Globe, ShoppingBag, Heart, Star, MousePointerClick, RotateCcw } from "lucide-react";
+import { GripVertical, Trash2, ExternalLink, MessageCircle, Instagram, Youtube, Link, Music, Mail, Phone, Globe, ShoppingBag, Heart, Star, MousePointerClick, RotateCcw, Video, Music2 } from "lucide-react";
 
 interface LinkEditorProps {
   link: BioLink;
@@ -36,6 +36,14 @@ export function LinkEditor({ link, clicks, onUpdate, onDelete, onResetClicks, on
   const selectedIcon = iconOptions.find(opt => opt.value === link.icon) || iconOptions[0];
   const IconComponent = selectedIcon.icon;
 
+  const typeLabel = link.linkType === "video" ? "Vídeo" : link.linkType === "audio" ? "Áudio" : "Link";
+  const TypeIcon = link.linkType === "video" ? Video : link.linkType === "audio" ? Music2 : null;
+  const urlPlaceholder = link.linkType === "video" 
+    ? "URL do YouTube, Vimeo ou MP4"
+    : link.linkType === "audio"
+    ? "URL do SoundCloud ou MP3"
+    : "https://...";
+
   return (
     <div
       className={`admin-card group transition-all duration-200 ${isDragging ? 'opacity-40 scale-[0.98]' : ''}`}
@@ -45,9 +53,17 @@ export function LinkEditor({ link, clicks, onUpdate, onDelete, onResetClicks, on
       onDrop={(e) => onDrop(e, link.id)}
     >
       <div className="flex items-start gap-4">
-        {/* Drag Handle */}
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted/50 cursor-grab active:cursor-grabbing hover:bg-muted transition-colors">
-          <GripVertical className="w-4 h-4 text-muted-foreground" />
+        {/* Drag Handle + Type Badge */}
+        <div className="flex flex-col items-center gap-1">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted/50 cursor-grab active:cursor-grabbing hover:bg-muted transition-colors">
+            <GripVertical className="w-4 h-4 text-muted-foreground" />
+          </div>
+          {TypeIcon && (
+            <span className="text-[10px] font-semibold text-primary flex items-center gap-0.5">
+              <TypeIcon className="w-3 h-3" />
+              {typeLabel}
+            </span>
+          )}
         </div>
 
         {/* Content */}
@@ -67,12 +83,12 @@ export function LinkEditor({ link, clicks, onUpdate, onDelete, onResetClicks, on
             </div>
             <div>
               <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
-                URL do Link
+                URL {link.linkType === "video" ? "do Vídeo" : link.linkType === "audio" ? "do Áudio" : "do Link"}
               </label>
               <Input
                 value={link.url}
                 onChange={(e) => onUpdate(link.id, { url: e.target.value })}
-                placeholder="https://..."
+                placeholder={urlPlaceholder}
                 className="bg-input border-border"
               />
             </div>

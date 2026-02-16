@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Plus, ExternalLink, ImagePlus, Trash2, Image, Users } from "lucide-react";
+import { ArrowLeft, Plus, ExternalLink, ImagePlus, Trash2, Image, Users, Video, Music2, Link2 } from "lucide-react";
 import { toast } from "sonner";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { UserManagement } from "@/components/UserManagement";
@@ -21,6 +21,8 @@ const Admin = () => {
   const [session, setSession] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [slug, setSlug] = useState("");
+  const [slugSaved, setSlugSaved] = useState(false);
 
   const userId = session?.user?.id;
   const { settings, updateSettings, loading: settingsLoading } = useSupabaseSettings(userId);
@@ -42,6 +44,40 @@ const Admin = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Load slug
+  useEffect(() => {
+    if (!userId) return;
+    supabase
+      .from("profiles")
+      .select("slug")
+      .eq("user_id", userId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.slug) setSlug(data.slug);
+      });
+  }, [userId]);
+
+  const saveSlug = async () => {
+    if (!userId || !slug.trim()) return;
+    const cleanSlug = slug.trim().toLowerCase().replace(/[^a-z0-9-_]/g, "");
+    const { error } = await supabase
+      .from("profiles")
+      .update({ slug: cleanSlug } as any)
+      .eq("user_id", userId);
+    if (error) {
+      if (error.message?.includes("duplicate") || error.message?.includes("unique")) {
+        toast.error("Este slug já está em uso. Escolha outro.");
+      } else {
+        toast.error("Erro ao salvar slug.");
+      }
+    } else {
+      setSlug(cleanSlug);
+      setSlugSaved(true);
+      toast.success(`Sua página pública: /u/${cleanSlug}`);
+      setTimeout(() => setSlugSaved(false), 3000);
+    }
+  };
+
   const checkAdmin = async (uid: string) => {
     const { data } = await supabase
       .from("user_roles" as any)
@@ -50,7 +86,6 @@ const Admin = () => {
       .maybeSingle();
     setIsAdmin((data as any)?.role === "admin");
   };
-
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setSession(null);
@@ -187,7 +222,31 @@ const Admin = () => {
           </div>
         </section>
 
-        {/* Appearance */}
+        {/* Public URL (Slug) */}
+        <section className="glass-card">
+          <h2 className="text-lg font-semibold mb-4">Página Pública</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Configure o endereço da sua página pública. Ex: /u/meunome
+          </p>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground font-mono">/u/</span>
+            <Input
+              value={slug}
+              onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ""))}
+              placeholder="meunome"
+              className="bg-input border-border flex-1 font-mono"
+            />
+            <Button onClick={saveSlug} variant={slugSaved ? "secondary" : "default"} size="sm">
+              {slugSaved ? "✓ Salvo" : "Salvar"}
+            </Button>
+          </div>
+          {slug && (
+            <p className="text-xs text-muted-foreground mt-2">
+              Sua página: <a href={`/u/${slug}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">/u/{slug}</a>
+            </p>
+          )}
+        </section>
+
         <section className="glass-card">
           <h2 className="text-lg font-semibold mb-6">Aparência</h2>
           <div className="mb-8">
@@ -232,16 +291,26 @@ const Admin = () => {
         <section className="glass-card">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold">Gerenciar Links</h2>
-            <Button onClick={async () => {
-              try {
-                await addLink();
-              } catch (e: any) {
-                toast.error(e.message || "Erro ao adicionar link");
-              }
-            }} className="bg-primary hover:bg-primary/90">
-              <Plus className="w-4 h-4 mr-2" />
-              Novo Botão
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button onClick={async () => {
+                try { await addLink('link'); } catch (e: any) { toast.error(e.message || "Erro ao adicionar"); }
+              }} className="bg-primary hover:bg-primary/90" size="sm">
+                <Link2 className="w-4 h-4 mr-1" />
+                Link
+              </Button>
+              <Button onClick={async () => {
+                try { await addLink('video'); } catch (e: any) { toast.error(e.message || "Erro ao adicionar"); }
+              }} variant="secondary" size="sm">
+                <Video className="w-4 h-4 mr-1" />
+                Vídeo
+              </Button>
+              <Button onClick={async () => {
+                try { await addLink('audio'); } catch (e: any) { toast.error(e.message || "Erro ao adicionar"); }
+              }} variant="secondary" size="sm">
+                <Music2 className="w-4 h-4 mr-1" />
+                Áudio
+              </Button>
+            </div>
           </div>
           <div className="space-y-4" onDragEnd={() => setDraggedId(null)}>
             {links
@@ -263,7 +332,7 @@ const Admin = () => {
             {links.length === 0 && (
               <div className="text-center py-12 text-muted-foreground">
                 <p>Nenhum link adicionado ainda.</p>
-                <p className="text-sm mt-1">Clique em "Novo Botão" para começar.</p>
+                <p className="text-sm mt-1">Clique nos botões acima para começar.</p>
               </div>
             )}
           </div>
