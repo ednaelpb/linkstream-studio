@@ -147,17 +147,22 @@ const UserPage = () => {
     );
   }
 
-  const backgroundStyle: React.CSSProperties = {
-    background: settings.backgroundGradient,
-    ...(settings.backgroundImage
-      ? {
-          backgroundImage: `${settings.backgroundGradient}, url(${settings.backgroundImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundBlendMode: "overlay" as const,
-        }
-      : {}),
-  };
+  const backgroundStyle: React.CSSProperties = (() => {
+    const gradient = settings.backgroundGradient;
+    const solidColor = `hsl(${settings.backgroundColor})`;
+    const base = gradient || solidColor;
+
+    if (settings.backgroundImage) {
+      return {
+        backgroundImage: `${gradient ? gradient + ',' : ''} url(${settings.backgroundImage})`,
+        backgroundColor: solidColor,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundBlendMode: "overlay" as const,
+      };
+    }
+    return { background: base };
+  })();
 
   return (
     <div className="min-h-screen flex flex-col items-center px-4 py-12 relative" style={backgroundStyle}>

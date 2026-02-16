@@ -400,33 +400,76 @@ const Admin = () => {
                 <ColorPicker label="Cor dos Botões" value={settings.buttonColor} onChange={(color) => updateSettings({ buttonColor: color })} />
                 <ColorPicker label="Cor do Texto dos Botões" value={settings.buttonTextColor} onChange={(color) => updateSettings({ buttonTextColor: color })} />
               </div>
+
+              {/* Background Options */}
+              <div className="mt-8 space-y-6">
+                <h3 className="text-sm font-semibold text-foreground">Fundo da Página</h3>
+
+                {/* Solid Background Color */}
+                <div>
+                  <ColorPicker label="Cor de Fundo Sólida" value={settings.backgroundColor} onChange={(color) => updateSettings({ backgroundColor: color })} />
+                </div>
+
+                {/* Gradient */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground block">Degradê (CSS gradient)</label>
+                  <Input
+                    value={settings.backgroundGradient}
+                    onChange={(e) => updateSettings({ backgroundGradient: e.target.value })}
+                    placeholder="linear-gradient(135deg, hsl(200 50% 10%) 0%, hsl(220 50% 15%) 100%)"
+                    className="bg-input border-border font-mono text-xs"
+                  />
+                  {settings.backgroundGradient && (
+                    <div className="flex items-center gap-3 mt-2">
+                      <div
+                        className="w-full h-10 rounded-lg border border-border"
+                        style={{ background: settings.backgroundGradient }}
+                      />
+                      <button
+                        onClick={() => updateSettings({ backgroundGradient: "" })}
+                        className="p-1.5 rounded-md hover:bg-destructive/10 text-destructive transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Ex: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)
+                  </p>
+                </div>
+
+                {/* Background Image */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground block">
+                    <Image className="w-4 h-4 inline mr-1.5" />
+                    Imagem de Fundo
+                  </label>
+                  <div className="flex items-center gap-4">
+                    {settings.backgroundImage ? (
+                      <div className="relative">
+                        <img src={settings.backgroundImage} alt="Fundo" className="w-32 h-20 rounded-xl object-cover border border-border" />
+                        <button onClick={() => updateSettings({ backgroundImage: "" })} className="absolute -top-2 -right-2 p-1 rounded-full bg-destructive text-destructive-foreground">
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="w-32 h-20 rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
+                        <ImagePlus className="w-5 h-5 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground mt-1">Upload</span>
+                        <input type="file" accept="image/*" onChange={handleBgImageUpload} className="hidden" />
+                      </label>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">A imagem será sobreposta ao degradê/cor de fundo.</p>
+                </div>
+              </div>
+
+              {/* Shadow */}
               <div className="mt-6 space-y-3">
                 <label className="text-sm font-medium text-muted-foreground block">Intensidade da Sombra 3D</label>
                 <div className="flex items-center gap-4">
                   <Slider value={[settings.shadowIntensity]} onValueChange={([value]) => updateSettings({ shadowIntensity: value })} min={0} max={2} step={0.1} className="flex-1" />
                   <span className="text-sm font-mono text-muted-foreground w-12 text-right">{settings.shadowIntensity.toFixed(1)}</span>
-                </div>
-              </div>
-              <div className="mt-6 space-y-3">
-                <label className="text-sm font-medium text-muted-foreground block">
-                  <Image className="w-4 h-4 inline mr-1.5" />
-                  Imagem de Fundo
-                </label>
-                <div className="flex items-center gap-4">
-                  {settings.backgroundImage ? (
-                    <div className="relative">
-                      <img src={settings.backgroundImage} alt="Fundo" className="w-32 h-20 rounded-xl object-cover border border-border" />
-                      <button onClick={() => updateSettings({ backgroundImage: "" })} className="absolute -top-2 -right-2 p-1 rounded-full bg-destructive text-destructive-foreground">
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="w-32 h-20 rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
-                      <ImagePlus className="w-5 h-5 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground mt-1">Upload</span>
-                      <input type="file" accept="image/*" onChange={handleBgImageUpload} className="hidden" />
-                    </label>
-                  )}
                 </div>
               </div>
             </section>
@@ -449,7 +492,7 @@ const Admin = () => {
       <footer className="border-t border-border bg-card/50 backdrop-blur-sm mt-12">
         <div className="max-w-4xl mx-auto px-4 py-6 flex items-center justify-center">
           <a
-            href="https://wa.me/5500000000000"
+            href="https://wa.me/5583986241260"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[hsl(142,70%,45%)] hover:bg-[hsl(142,70%,40%)] text-white font-medium transition-colors text-sm"
