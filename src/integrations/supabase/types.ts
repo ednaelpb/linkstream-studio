@@ -153,6 +153,7 @@ export type Database = {
           background_color: string | null
           background_gradient: string | null
           background_image: string | null
+          background_opacity: number | null
           brand_name: string
           button_color: string | null
           button_text_color: string | null
@@ -171,6 +172,7 @@ export type Database = {
           background_color?: string | null
           background_gradient?: string | null
           background_image?: string | null
+          background_opacity?: number | null
           brand_name?: string
           button_color?: string | null
           button_text_color?: string | null
@@ -189,6 +191,7 @@ export type Database = {
           background_color?: string | null
           background_gradient?: string | null
           background_image?: string | null
+          background_opacity?: number | null
           brand_name?: string
           button_color?: string | null
           button_text_color?: string | null

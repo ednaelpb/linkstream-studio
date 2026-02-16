@@ -1,0 +1,1 @@
+ALTER TABLE public.site_settings ADD COLUMN background_opacity numeric DEFAULT 0.5;

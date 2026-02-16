@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Plus, ExternalLink, ImagePlus, Trash2, Image, Users, Video, Music2, Link2, BarChart3, Search, Settings2 } from "lucide-react";
+import { ArrowLeft, Plus, ExternalLink, ImagePlus, Trash2, Image, Users, Video, Music2, Link2, BarChart3, Search, Settings2, Save } from "lucide-react";
 import { toast } from "sonner";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { UserManagement } from "@/components/UserManagement";
@@ -410,13 +410,42 @@ const Admin = () => {
                   <ColorPicker label="Cor de Fundo Sólida" value={settings.backgroundColor} onChange={(color) => updateSettings({ backgroundColor: color })} />
                 </div>
 
-                {/* Gradient */}
+                {/* Gradient Presets */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground block">Degradê (CSS gradient)</label>
+                  <label className="text-sm font-medium text-muted-foreground block">Degradê Pré-definido</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { name: "Noite", value: "linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)" },
+                      { name: "Oceano", value: "linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)" },
+                      { name: "Pôr do Sol", value: "linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%)" },
+                      { name: "Floresta", value: "linear-gradient(135deg, #0b8793 0%, #360033 100%)" },
+                      { name: "Roxo", value: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" },
+                      { name: "Fogo", value: "linear-gradient(135deg, #f12711 0%, #f5af19 100%)" },
+                      { name: "Menta", value: "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)" },
+                      { name: "Rosé", value: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)" },
+                    ].map((preset) => (
+                      <button
+                        key={preset.name}
+                        onClick={() => updateSettings({ backgroundGradient: preset.value })}
+                        className="flex flex-col items-center gap-1 group"
+                      >
+                        <div
+                          className="w-full h-10 rounded-lg border-2 border-border group-hover:border-primary transition-colors"
+                          style={{ background: preset.value }}
+                        />
+                        <span className="text-[10px] text-muted-foreground">{preset.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Custom Gradient */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground block">Degradê Customizado (CSS)</label>
                   <Input
                     value={settings.backgroundGradient}
                     onChange={(e) => updateSettings({ backgroundGradient: e.target.value })}
-                    placeholder="linear-gradient(135deg, hsl(200 50% 10%) 0%, hsl(220 50% 15%) 100%)"
+                    placeholder="linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%)"
                     className="bg-input border-border font-mono text-xs"
                   />
                   {settings.backgroundGradient && (
@@ -433,9 +462,6 @@ const Admin = () => {
                       </button>
                     </div>
                   )}
-                  <p className="text-xs text-muted-foreground">
-                    Ex: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)
-                  </p>
                 </div>
 
                 {/* Background Image */}
@@ -460,8 +486,18 @@ const Admin = () => {
                       </label>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground">A imagem será sobreposta ao degradê/cor de fundo.</p>
                 </div>
+
+                {/* Opacity */}
+                {settings.backgroundImage && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground block">Opacidade da Imagem de Fundo</label>
+                    <div className="flex items-center gap-4">
+                      <Slider value={[settings.backgroundOpacity]} onValueChange={([v]) => updateSettings({ backgroundOpacity: v })} min={0} max={1} step={0.05} className="flex-1" />
+                      <span className="text-sm font-mono text-muted-foreground w-12 text-right">{Math.round(settings.backgroundOpacity * 100)}%</span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Shadow */}
