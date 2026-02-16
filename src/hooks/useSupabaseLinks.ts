@@ -59,7 +59,7 @@ export function useSupabaseLinks(userId: string | undefined) {
 
   const addLink = useCallback(async () => {
     if (!userId) return;
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("bio_links")
       .insert({
         user_id: userId,
@@ -71,6 +71,13 @@ export function useSupabaseLinks(userId: string | undefined) {
       })
       .select()
       .single();
+
+    if (error) {
+      if (error.message?.includes("Limite de links")) {
+        throw new Error(error.message);
+      }
+      throw error;
+    }
 
     if (data) {
       setLinks((prev) => [...prev, mapDbToLink(data)]);

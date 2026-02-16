@@ -232,7 +232,13 @@ const Admin = () => {
         <section className="glass-card">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold">Gerenciar Links</h2>
-            <Button onClick={addLink} className="bg-primary hover:bg-primary/90">
+            <Button onClick={async () => {
+              try {
+                await addLink();
+              } catch (e: any) {
+                toast.error(e.message || "Erro ao adicionar link");
+              }
+            }} className="bg-primary hover:bg-primary/90">
               <Plus className="w-4 h-4 mr-2" />
               Novo Botão
             </Button>
