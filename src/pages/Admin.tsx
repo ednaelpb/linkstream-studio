@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Plus, ExternalLink, ImagePlus, Trash2, Image, Users, Video, Music2, Link2, BarChart3, Search, Settings2, Save } from "lucide-react";
+import { ArrowLeft, Plus, ExternalLink, ImagePlus, Trash2, Image, Users, Video, Music2, Link2, BarChart3, Search, Settings2, Save, Eye, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { UserManagement } from "@/components/UserManagement";
@@ -25,7 +25,8 @@ const Admin = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [slug, setSlug] = useState("");
   const [slugSaved, setSlugSaved] = useState(false);
-  const [activeTab, setActiveTab] = useState<"links" | "analytics" | "settings">("links");
+  const [activeTab, setActiveTab] = useState<"links" | "analytics" | "settings" | "preview">("links");
+  const [previewKey, setPreviewKey] = useState(0);
 
   const userId = session?.user?.id;
   const { settings, updateSettings, loading: settingsLoading } = useSupabaseSettings(userId);
@@ -211,6 +212,13 @@ const Admin = () => {
           >
             <Settings2 className="w-4 h-4 inline mr-1.5" />
             Configurações
+          </button>
+          <button
+            onClick={() => { setActiveTab("preview"); setPreviewKey(k => k + 1); }}
+            className={`px-4 py-2.5 text-sm font-medium rounded-t-lg transition-colors border-b-2 ${activeTab === "preview" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+          >
+            <Eye className="w-4 h-4 inline mr-1.5" />
+            Preview
           </button>
         </div>
       </header>
@@ -521,6 +529,55 @@ const Admin = () => {
               </section>
             )}
           </>
+        )}
+
+        {/* ===== PREVIEW TAB ===== */}
+        {activeTab === "preview" && (
+          <section className="glass-card">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Eye className="w-5 h-5 text-primary" />
+                <h2 className="text-lg font-semibold">Preview da Página Pública</h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPreviewKey(k => k + 1)}
+                >
+                  <RefreshCw className="w-4 h-4 mr-1" />
+                  Atualizar
+                </Button>
+                {slug && (
+                  <a
+                    href={`/u/${slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    Abrir
+                  </a>
+                )}
+              </div>
+            </div>
+            {slug ? (
+              <div className="rounded-xl border border-border overflow-hidden bg-background" style={{ height: "70vh" }}>
+                <iframe
+                  key={previewKey}
+                  src={`/u/${slug}`}
+                  className="w-full h-full"
+                  title="Preview da página pública"
+                />
+              </div>
+            ) : (
+              <div className="text-center py-16 text-muted-foreground">
+                <Eye className="w-10 h-10 mx-auto mb-3 opacity-40" />
+                <p className="font-medium">Nenhum slug configurado</p>
+                <p className="text-sm mt-1">Vá em Configurações → Página Pública e defina seu slug para ver o preview.</p>
+              </div>
+            )}
+          </section>
         )}
       </main>
 
